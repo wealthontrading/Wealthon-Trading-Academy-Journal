@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, User, Key, CheckCircle2, AlertCircle, Lock, GraduationCap, ArrowRight, UserPlus } from 'lucide-react';
 import { UserSession } from '../types';
-import { WEALTHON_LOGO_URL } from '../assets/logo';
+import { Logo } from './Logo';
 import {
   authenticateAdmin,
   authenticateStudent,
@@ -104,13 +104,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             ✕
           </button>
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-xl bg-white p-1 shadow-md flex items-center justify-center shrink-0 overflow-hidden">
-              <img
-                src={WEALTHON_LOGO_URL}
-                alt="WealthOn Logo"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <Logo className="text-3xl" />
             <div>
               <span className="text-[10px] font-extrabold uppercase tracking-widest bg-blue-500/30 text-blue-200 border border-blue-400/30 px-2 py-0.5 rounded-full">
                 WealthOn Portal

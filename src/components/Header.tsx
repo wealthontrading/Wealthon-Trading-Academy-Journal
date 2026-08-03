@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Clock, Calendar, User, ShieldCheck, Settings, Plus, BarChart3, BookOpen, ShieldAlert, GraduationCap, Send, CheckCircle2, Radio, Link2, Bot, Sparkles, Headphones, Layers3 } from 'lucide-react';
 import { TraderProfile, UserSession } from '../types';
-import { WEALTHON_LOGO_URL } from '../assets/logo';
+import { Logo } from './Logo';
 
 interface HeaderProps {
   profile: TraderProfile;
@@ -67,13 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Main Title & Branding */}
           <div>
             <div className="flex items-center space-x-3.5">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white p-1 shadow-xs shrink-0 flex items-center justify-center overflow-hidden">
-                <img
-                  src={WEALTHON_LOGO_URL}
-                  alt="WealthOn Trading Academy Logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
+              <Logo className="text-3xl" />
               <div>
                 <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                   <span className="text-[11px] font-extrabold uppercase tracking-widest text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">

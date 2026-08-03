@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
-import { WEALTHON_LOGO_URL } from '../assets/logo';
+import { Logo } from './Logo';
 import { saveFeedbackToFirestore } from '../utils/firebaseSync';
 import { FeedbackItem, TraderProfile, UserSession } from '../types';
 
@@ -222,13 +222,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
           {/* Top Header */}
           <div className="p-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white flex items-center justify-between shrink-0">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-xl bg-white p-1 shadow-md flex items-center justify-center shrink-0 overflow-hidden">
-                <img
-                  src={WEALTHON_LOGO_URL}
-                  alt="WealthOn Logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
+              <Logo className="text-3xl" />
               <div>
                 <h2 className="text-lg font-black tracking-tight flex items-center space-x-2">
                   <span>Customer Support & Feedback</span>
@@ -638,9 +632,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
           {/* Footer */}
           <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0">
             <div className="flex items-center space-x-2">
-              <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center overflow-hidden shrink-0">
-                <img src={WEALTHON_LOGO_URL} alt="WealthOn Logo" className="w-full h-full object-contain" />
-              </div>
+              <Logo className="text-base" />
               <span className="font-bold text-slate-700">WealthOn Trading Academy</span>
             </div>
             <button

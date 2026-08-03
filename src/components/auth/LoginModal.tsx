@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { WEALTHON_LOGO_URL } from '../../assets/logo';
+import { Logo } from '../Logo';
 import {
   GraduationCap,
   ShieldCheck,
@@ -227,13 +227,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
       >
         {/* Header */}
         <div className="p-7 bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white text-center relative">
-          <div className="inline-flex w-16 h-16 bg-white p-1 rounded-2xl mb-2 shadow-md items-center justify-center overflow-hidden shrink-0">
-            <img
-              src={WEALTHON_LOGO_URL}
-              alt="WealthOn Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <Logo className="text-3xl" />
           <h1 className="text-2xl font-black tracking-tight">WealthOn Trading Academy</h1>
           <p className="text-xs text-blue-200 mt-1">
             Every student gets an individual journal window across devices.

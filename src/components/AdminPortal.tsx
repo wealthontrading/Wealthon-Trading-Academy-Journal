@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { WEALTHON_LOGO_URL } from '../assets/logo';
+import { Logo } from './Logo';
 import {
   ShieldCheck,
   UserCheck,
@@ -228,13 +228,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-11 h-11 bg-white p-1 rounded-xl shadow-md flex items-center justify-center shrink-0 overflow-hidden">
-              <img
-                src={WEALTHON_LOGO_URL}
-                alt="WealthOn Logo"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <Logo className="text-xl" />
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-300 bg-indigo-950 border border-indigo-800 px-2 py-0.5 rounded-full">

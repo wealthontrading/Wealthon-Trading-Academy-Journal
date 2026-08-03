@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShieldAlert, Lock } from 'lucide-react';
-import { WEALTHON_LOGO_URL } from '../assets/logo';
+import { Logo } from './Logo';
 
 interface FooterProps {
   onOpenPrivacy: () => void;
@@ -15,13 +15,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenDisclaimer 
         {/* LINKS & COPYRIGHT */}
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-white p-0.5 shadow-xs overflow-hidden flex items-center justify-center shrink-0">
-              <img
-                src={WEALTHON_LOGO_URL}
-                alt="WealthOn Logo"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <Logo className="text-xl" />
             <span className="text-sm font-extrabold text-white tracking-tight">WealthOn Trading Academy</span>
           </div>
 
