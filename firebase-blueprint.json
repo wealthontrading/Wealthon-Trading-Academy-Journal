@@ -1,0 +1,146 @@
+{
+  "entities": {
+    "TraderProfile": {
+      "title": "TraderProfile",
+      "description": "Trader profile and settings",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "platform": { "type": "string", "maxLength": 100 },
+        "isFirstLaunchCompleted": { "type": "boolean" },
+        "theme": { "type": "string", "enum": ["light", "dark"] },
+        "userEmail": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["name", "isFirstLaunchCompleted"]
+    },
+    "Trade": {
+      "title": "Trade",
+      "description": "Individual trading execution log",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "maxLength": 20 },
+        "time": { "type": "string", "maxLength": 20 },
+        "platform": { "type": "string", "maxLength": 100 },
+        "segment": { "type": "string", "maxLength": 50 },
+        "indexOrStock": { "type": "string", "maxLength": 100 },
+        "strikePrice": { "type": "string", "maxLength": 100 },
+        "buyOrSell": { "type": "string", "enum": ["Buy", "Sell"] },
+        "entryPrice": { "type": "number" },
+        "exitPrice": { "type": "number" },
+        "quantity": { "type": "number" },
+        "brokerage": { "type": "number" },
+        "taxes": { "type": "number" },
+        "otherCharges": { "type": "number" },
+        "grossPnL": { "type": "number" },
+        "netPnL": { "type": "number" },
+        "status": { "type": "string", "maxLength": 20 },
+        "strategy": { "type": "string", "maxLength": 100 },
+        "emotion": { "type": "string", "maxLength": 50 },
+        "tradeType": { "type": "string", "maxLength": 50 },
+        "notes": { "type": "string", "maxLength": 2000 },
+        "holdingTimeMinutes": { "type": "number" },
+        "createdAt": { "type": "number" },
+        "userEmail": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["date", "netPnL", "createdAt", "userEmail"]
+    },
+    "DailyNote": {
+      "title": "DailyNote",
+      "description": "Daily reflection and trade notes",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "maxLength": 20 },
+        "marketReflection": { "type": "string", "maxLength": 2000 },
+        "mistakeLearned": { "type": "string", "maxLength": 2000 },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "number" },
+        "userEmail": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["date", "userEmail"]
+    },
+    "TradingRule": {
+      "title": "TradingRule",
+      "description": "Active trading rule or discipline guidelines",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "maxLength": 500 },
+        "active": { "type": "boolean" },
+        "userEmail": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["text", "active"]
+    },
+    "TradingGoal": {
+      "title": "TradingGoal",
+      "description": "Monthly trading targets",
+      "type": "object",
+      "properties": {
+        "month": { "type": "string", "maxLength": 20 },
+        "targetPnL": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 500 },
+        "userEmail": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["month", "targetPnL"]
+    },
+    "StudentAccount": {
+      "title": "StudentAccount",
+      "description": "Student account access record",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 200 },
+        "name": { "type": "string", "maxLength": 100 },
+        "password": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["approved", "pending", "rejected", "disabled"] },
+        "registeredAt": { "type": "number" },
+        "approvedAt": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["email", "status"]
+    },
+    "FeedbackItem": {
+      "title": "FeedbackItem",
+      "description": "User feedback and rating submission",
+      "type": "object",
+      "properties": {
+        "userEmail": { "type": "string", "maxLength": 200 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "rating": { "type": "number" },
+        "category": { "type": "string", "maxLength": 100 },
+        "message": { "type": "string", "maxLength": 3000 },
+        "status": { "type": "string", "enum": ["New", "Reviewed", "Resolved"] },
+        "submittedAt": { "type": "number" }
+      },
+      "required": ["userEmail", "rating", "category", "message", "submittedAt"]
+    }
+  },
+  "firestore": {
+    "/profiles/{profileId}": {
+      "schema": { "$ref": "#/entities/TraderProfile" },
+      "description": "User profiles"
+    },
+    "/trades/{tradeId}": {
+      "schema": { "$ref": "#/entities/Trade" },
+      "description": "User trades log"
+    },
+    "/dailyNotes/{noteId}": {
+      "schema": { "$ref": "#/entities/DailyNote" },
+      "description": "Daily market notes and reflections"
+    },
+    "/rules/{ruleId}": {
+      "schema": { "$ref": "#/entities/TradingRule" },
+      "description": "Trading rules"
+    },
+    "/goals/{goalId}": {
+      "schema": { "$ref": "#/entities/TradingGoal" },
+      "description": "Monthly goals"
+    },
+    "/students/{studentId}": {
+      "schema": { "$ref": "#/entities/StudentAccount" },
+      "description": "Student directory records"
+    },
+    "/feedback/{feedbackId}": {
+      "schema": { "$ref": "#/entities/FeedbackItem" },
+      "description": "User feedback collection"
+    }
+  }
+}

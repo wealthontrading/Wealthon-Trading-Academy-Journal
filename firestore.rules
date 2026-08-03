@@ -1,0 +1,63 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Ping test collection
+    match /_test_connection/{docId} {
+      allow read: if true;
+    }
+    
+    // Trader Profiles
+    match /profiles/{profileId} {
+      allow read, write: if true;
+    }
+    
+    // Trade Log
+    match /trades/{tradeId} {
+      allow read, write: if true;
+    }
+    
+    // Daily Notes
+    match /dailyNotes/{noteId} {
+      allow read, write: if true;
+    }
+
+    // Trading Rules
+    match /rules/{ruleId} {
+      allow read, write: if true;
+    }
+
+    // Trading Goals
+    match /goals/{goalId} {
+      allow read, write: if true;
+    }
+
+    // Student Directory
+    match /students/{studentId} {
+      allow read, write: if true;
+    }
+
+    // Customer Feedback
+    match /feedback/{feedbackId} {
+      allow read, write: if true;
+    }
+
+    // Custom Strategies
+    match /strategies/{strategyId} {
+      allow read, write: if true;
+    }
+  }
+}

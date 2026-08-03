@@ -1,0 +1,6 @@
+{
+  "name": "WealthOn Trading Academy",
+  "description": "WealthOn Trading Academy - Official Options Trading Journal & Analytics for Indian Stock Market Traders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
