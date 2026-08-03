@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import { DashboardMetrics, Trade, StrategyItem } from '../types';
 import { formatINR, calculateMetrics } from '../utils/calculations';
+import { YearlyPerformanceHeatmap } from './YearlyPerformanceHeatmap';
 
 interface AnalyticsViewProps {
   trades: Trade[];
@@ -320,6 +321,8 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
 
   return (
     <div className="space-y-6 my-6">
+      <YearlyPerformanceHeatmap trades={trades} />
+
       {/* 1. TOP FEATURED PROMINENT CALENDAR HEAT MAP VIEW */}
       <div className="bg-white p-5 sm:p-7 rounded-3xl border border-slate-200 shadow-sm space-y-6">
         {/* Calendar Header with Title & Navigation Controls */}

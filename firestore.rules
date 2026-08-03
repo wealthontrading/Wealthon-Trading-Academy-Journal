@@ -59,5 +59,15 @@ service cloud.firestore {
     match /strategies/{strategyId} {
       allow read, write: if true;
     }
+
+    // System Settings
+    match /systemSettings/{settingId} {
+      allow read, write: if true;
+    }
+
+    // Broker Requests
+    match /brokerRequests/{requestId} {
+      allow read, write: if true;
+    }
   }
 }

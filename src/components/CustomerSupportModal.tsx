@@ -173,7 +173,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
         id: `fb_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         userEmail: userEmail.trim().toLowerCase(),
         userName: userName.trim() || 'Student',
-        phone: phone.trim() || undefined,
+        phone: phone.trim(),
         rating,
         category,
         message: message.trim(),

@@ -305,7 +305,9 @@ export async function saveMaintenanceModeToFirestore(state: SystemMaintenanceSta
   const docId = 'maintenanceMode';
   try {
     const docRef = doc(db, path, docId);
-    await setDoc(docRef, state, { merge: true });
+    // Remove any undefined properties which cause Firestore to throw
+    const safeState = JSON.parse(JSON.stringify(state));
+    await setDoc(docRef, safeState, { merge: true });
   } catch (err) {
     console.warn('Failed to save maintenance state to Firestore:', err);
   }
@@ -351,7 +353,8 @@ export async function saveBrokerRequestToFirestore(req: BrokerRequest) {
   try {
     const docId = cleanDocId(req.id || `${req.userEmail}_${Date.now()}`);
     const docRef = doc(db, path, docId);
-    await setDoc(docRef, req, { merge: true });
+    const safeReq = JSON.parse(JSON.stringify(req));
+    await setDoc(docRef, safeReq, { merge: true });
   } catch (err) {
     console.warn('Failed to save broker request to Firestore:', err);
   }
@@ -403,7 +406,8 @@ export async function saveFeedbackToFirestore(feedback: FeedbackItem) {
   try {
     const docId = cleanDocId(feedback.id || `${feedback.userEmail}_${Date.now()}`);
     const docRef = doc(db, path, docId);
-    await setDoc(docRef, feedback, { merge: true });
+    const safeFeedback = JSON.parse(JSON.stringify(feedback));
+    await setDoc(docRef, safeFeedback, { merge: true });
 
     // Also update local storage
     const currentList = getStoredFeedback();

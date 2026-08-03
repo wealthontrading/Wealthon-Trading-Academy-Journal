@@ -17,6 +17,7 @@ import {
   XCircle,
   MinusCircle,
 } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 import { Trade } from '../types';
 import { formatINR } from '../utils/calculations';
 
@@ -99,6 +100,22 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
     const profitFactor = totalLoss > 0 ? totalProfit / totalLoss : totalProfit > 0 ? 999 : 0;
     const avgTradePnL = totalTrades > 0 ? netPnL / totalTrades : 0;
 
+    // Daily cumulative trend for mini-chart
+    const sortedForTrend = [...monthlyTrades].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    let runningNet = 0;
+    const dailyMap: Record<string, number> = {};
+    sortedForTrend.forEach(t => {
+      const d = t.date || 'unknown';
+      dailyMap[d] = (dailyMap[d] || 0) + (t.netPnL ?? 0);
+    });
+    
+    // Create initial data point of 0 to anchor the start of the month
+    const dailyTrendData = [{ index: -1, value: 0 }];
+    Object.keys(dailyMap).sort().forEach((date, i) => {
+      runningNet += dailyMap[date];
+      dailyTrendData.push({ index: i, value: runningNet });
+    });
+
     return {
       totalTrades,
       winningTrades,
@@ -116,6 +133,7 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
       avgLoss,
       profitFactor,
       avgTradePnL,
+      dailyTrendData,
     };
   }, [monthlyTrades]);
 
@@ -261,6 +279,24 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
               >
                 {formatINR(metrics.netPnL)}
               </div>
+
+              {metrics.dailyTrendData.length > 1 && (
+                <div className="h-10 w-full mt-2 -mb-1 opacity-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={metrics.dailyTrendData}>
+                      <YAxis domain={['dataMin', 'dataMax']} hide />
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke={metrics.netPnL >= 0 ? '#10b981' : '#f43f5e'}
+                        strokeWidth={2}
+                        dot={false}
+                        isAnimationActive={true}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
 
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs pt-3 border-t border-slate-200/80">
                 <div>
