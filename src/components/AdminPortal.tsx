@@ -65,7 +65,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Live Students State
   const [students, setStudents] = useState<StudentAccount[]>(() => getStoredStudents());
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending' | 'disabled'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending' | 'disabled' | 'rejected'>('all');
 
   useEffect(() => {
     const unsub = subscribeStudentsFromFirestore((fsStudents) => {
@@ -203,9 +203,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   };
 
   const handleDeleteStudent = (email: string) => {
-    if (confirm(`Are you sure you want to remove student ${email} from the system?`)) {
-      adminDeleteStudent(email);
-      setBannerMsg({ type: 'success', text: `Removed student record for ${email}!` });
+    if (confirm(`Are you sure you want to completely ban/reject student ${email}? They will not be able to log in or request access again.`)) {
+      adminUpdateStudentStatus(email, 'rejected');
+      setBannerMsg({ type: 'success', text: `Banned student record for ${email}!` });
       refreshStudents();
     }
   };
@@ -221,6 +221,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const totalStudents = students.length;
   const approvedStudents = students.filter((s) => s.status === 'approved').length;
   const pendingStudents = students.filter((s) => s.status === 'pending').length;
+  const rejectedStudents = students.filter((s) => s.status === 'rejected').length;
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 pb-12 font-sans">
@@ -720,6 +721,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               >
                 Pending ({pendingStudents})
               </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('rejected')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
+                  statusFilter === 'rejected' ? 'bg-rose-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Rejected ({rejectedStudents})
+              </button>
             </div>
           </div>
 
@@ -767,9 +777,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               </span>
                             )}
                             {s.status === 'disabled' && (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-bold">
+                                <Lock className="w-3 h-3 text-slate-600" />
+                                <span>Disabled</span>
+                              </span>
+                            )}
+                            {s.status === 'rejected' && (
                               <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-800 text-[11px] font-bold">
                                 <XCircle className="w-3 h-3 text-rose-600" />
-                                <span>Disabled</span>
+                                <span>Rejected (Banned)</span>
                               </span>
                             )}
                           </td>
@@ -848,7 +864,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 </button>
                               )}
 
-                              {s.status === 'disabled' && (
+                              {(s.status === 'disabled' || s.status === 'rejected') && (
                                 <button
                                   onClick={() => handleApproveStatus(s.email, 'approved')}
                                   className="px-2.5 py-1 bg-emerald-600 text-white font-bold text-xs rounded-lg cursor-pointer"
@@ -869,9 +885,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               <button
                                 onClick={() => handleDeleteStudent(s.email)}
                                 className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
-                                title="Delete student record"
+                                title="Ban/Reject student record"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <XCircle className="w-4 h-4" />
                               </button>
                             </div>
                           </td>
