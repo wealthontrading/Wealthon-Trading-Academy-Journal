@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   addTrade,
+  addMultipleTrades,
   deleteTrade,
   exportBackupJSON,
   getStoredDailyNotes,
@@ -360,6 +361,30 @@ export default function App() {
   };
 
   // Trade Handlers
+  const syncStrategiesFromTrades = (newTrades: Omit<Trade, 'id' | 'createdAt'>[]) => {
+    setStrategies(currentStrategies => {
+      let updatedStrategies = [...currentStrategies];
+      const existingNames = updatedStrategies.map(s => s.name.toLowerCase().trim());
+      let hasNew = false;
+      
+      newTrades.forEach(trade => {
+        const stratName = trade.strategy?.trim();
+        if (stratName && stratName.toLowerCase() !== 'unknown' && stratName !== '-' && !existingNames.includes(stratName.toLowerCase())) {
+          existingNames.push(stratName.toLowerCase());
+          const newStrat = addCustomStrategy({
+            name: stratName,
+            description: 'Auto-added from imported trades',
+            isPreset: false,
+          }, activeUserEmail);
+          updatedStrategies = [newStrat, ...updatedStrategies.filter((s) => s.id !== newStrat.id)];
+          hasNew = true;
+        }
+      });
+      
+      return hasNew ? updatedStrategies : currentStrategies;
+    });
+  };
+
   const handleSaveTrade = (tradeData: Omit<Trade, 'id' | 'createdAt'>, existingId?: string) => {
     if (existingId) {
       const updatedList = updateTrade(existingId, tradeData, activeUserEmail);
@@ -368,8 +393,16 @@ export default function App() {
       addTrade(tradeData, activeUserEmail);
       setTrades(getStoredTrades(activeUserEmail));
     }
+    syncStrategiesFromTrades([tradeData]);
     setIsAddTradeOpen(false);
     setTradeToEdit(null);
+    setIsSavedModalOpen(true);
+  };
+
+  const handleAddMultipleTrades = (tradesData: Omit<Trade, 'id' | 'createdAt'>[]) => {
+    addMultipleTrades(tradesData, activeUserEmail);
+    setTrades(getStoredTrades(activeUserEmail));
+    syncStrategiesFromTrades(tradesData);
     setIsSavedModalOpen(true);
   };
 
@@ -665,6 +698,7 @@ export default function App() {
                 onDeleteTrade={handleDeleteTrade}
                 onOpenSendToMentor={handleOpenSendToMentor}
                 onOpenAddTrade={() => handleOpenAddTrade(null)}
+                onAddMultipleTrades={handleAddMultipleTrades}
               />
             )}
 

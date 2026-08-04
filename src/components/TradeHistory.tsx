@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import * as XLSX from 'xlsx';
 import {
   Search,
   Filter,
@@ -17,6 +18,7 @@ import {
   Send,
   Plus,
   PlusCircle,
+  Upload,
 } from 'lucide-react';
 import { Trade } from '../types';
 import { formatINR } from '../utils/calculations';
@@ -30,6 +32,7 @@ interface TradeHistoryProps {
   onDeleteTrade: (id: string) => void;
   onOpenSendToMentor?: () => void;
   onOpenAddTrade?: () => void;
+  onAddMultipleTrades?: (trades: Omit<Trade, 'id' | 'createdAt'>[]) => void;
 }
 
 export const TradeHistory: React.FC<TradeHistoryProps> = ({
@@ -40,7 +43,175 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
   onDeleteTrade,
   onOpenSendToMentor,
   onOpenAddTrade,
+  onAddMultipleTrades,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const workbook = XLSX.read(bstr, { type: 'binary' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+        
+        if (rawData.length < 2) {
+          alert('File appears to be empty or missing data rows.');
+          return;
+        }
+
+        const headers = (rawData[0] as string[]).map(h => h ? h.toString().toLowerCase().trim() : '');
+        
+        const getIndex = (possibleNames: string[]) => {
+          for (let name of possibleNames) {
+            let idx = headers.findIndex(h => h === name.toLowerCase());
+            if (idx !== -1) return idx;
+          }
+          for (let name of possibleNames) {
+            let idx = headers.findIndex(h => h.replace(/[^a-z0-9 ]/g, '').trim() === name.replace(/[^a-z0-9 ]/g, '').trim());
+            if (idx !== -1) return idx;
+          }
+          for (let name of possibleNames) {
+            let idx = headers.findIndex(h => h.includes(name.toLowerCase()));
+            if (idx !== -1) return idx;
+          }
+          return -1;
+        };
+
+        const idxDate = getIndex(['date']);
+        const idxTime = getIndex(['time', 'hour']);
+        const idxPlatform = getIndex(['platform', 'broker']);
+        const idxSegment = getIndex(['segment', 'type']);
+        const idxSymbol = getIndex(['symbol', 'index', 'stock', 'ticker', 'instrument']);
+        const idxStrike = getIndex(['strike']);
+        const idxSide = getIndex(['side', 'buy', 'sell', 'action']);
+        const idxEntry = getIndex(['entry', 'buy price', 'entry price']);
+        const idxExit = getIndex(['exit', 'sell price', 'exit price']);
+        const idxQty = getIndex(['qty', 'quantity']);
+        const idxGross = getIndex(['gross pnl', 'gross', 'pnl']);
+        const idxBrokerage = getIndex(['brokerage']);
+        const idxTaxes = getIndex(['taxes', 'tax', 'charges', 'total charges']);
+        const idxNet = getIndex(['net pnl', 'net']);
+        const idxStrategy = getIndex(['strategy', 'setup']);
+        const idxEmotion = getIndex(['emotion', 'mindset']);
+        const idxNotes = getIndex(['rationale', 'reason', 'note', 'trade rationale']);
+        
+        if (idxDate === -1 || idxSymbol === -1) {
+          alert('Could not find mandatory columns: Date and Symbol.');
+          return;
+        }
+
+        const parseNumber = (val: any) => {
+          if (val === undefined || val === null || val === '') return 0;
+          if (typeof val === 'number') return val;
+          const str = String(val);
+          const isNegative = str.includes('-') || (str.includes('(') && str.includes(')'));
+          const cleanStr = str.replace(/[^0-9.]+/g, '');
+          let parsed = parseFloat(cleanStr);
+          if (isNaN(parsed)) return 0;
+          return isNegative ? -parsed : parsed;
+        };
+
+        const parseDate = (val: any) => {
+          if (!val) return new Date().toISOString().split('T')[0];
+          const str = String(val).trim();
+          if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+          
+          const parts = str.split(/[-/]/);
+          if (parts.length === 3) {
+            let year = parts[2];
+            let month = parts[1];
+            let day = parts[0];
+            
+            if (parts[0].length === 4) {
+               year = parts[0];
+               month = parts[1];
+               day = parts[2];
+            } else if (parts[2].length === 4 || parts[2].length === 2) {
+               if (parts[2].length === 2) year = "20" + parts[2];
+               if (parseInt(parts[0]) > 12) {
+                  day = parts[1];
+                  month = parts[0];
+               } else if (parseInt(parts[1]) > 12) {
+                  month = parts[0];
+                  day = parts[1];
+               }
+            }
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          }
+          const d = new Date(str);
+          if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+          return new Date().toISOString().split('T')[0];
+        };
+
+        const newTrades: Omit<Trade, 'id' | 'createdAt'>[] = [];
+        
+        for (let i = 1; i < rawData.length; i++) {
+          const row = rawData[i] as any[];
+          if (!row || row.length === 0 || row[idxDate] === undefined) continue;
+          
+          let dateStr = parseDate(row[idxDate]);
+          
+          const entryPrice = parseNumber(row[idxEntry]);
+          const exitPrice = parseNumber(row[idxExit]);
+          const qty = parseNumber(row[idxQty]);
+          
+          let gross = parseNumber(row[idxGross]);
+          if (gross === 0 && row[idxGross] === undefined) {
+             const side = String(row[idxSide] || 'Buy').toLowerCase();
+             if (side.includes('sell')) {
+               gross = (entryPrice - exitPrice) * qty;
+             } else {
+               gross = (exitPrice - entryPrice) * qty;
+             }
+          }
+          
+          let net = parseNumber(row[idxNet]);
+          if (net === 0 && row[idxNet] === undefined) net = gross;
+
+          newTrades.push({
+            date: dateStr,
+            time: (idxTime !== -1 && row[idxTime] !== undefined) ? String(row[idxTime]) : '12:00',
+            platform: (idxPlatform !== -1 && row[idxPlatform]) ? String(row[idxPlatform]) : 'Imported',
+            segment: (idxSegment !== -1 && row[idxSegment]) ? String(row[idxSegment]) as any : 'Options',
+            indexOrStock: String(row[idxSymbol] || 'Unknown'),
+            strikePrice: (idxStrike !== -1 && row[idxStrike]) ? String(row[idxStrike]) : undefined,
+            buyOrSell: (idxSide !== -1 && String(row[idxSide]).toLowerCase().includes('sell')) ? 'Sell' : 'Buy',
+            entryPrice,
+            exitPrice,
+            quantity: qty,
+            brokerage: idxBrokerage !== -1 ? parseNumber(row[idxBrokerage]) : 0,
+            taxes: idxTaxes !== -1 ? parseNumber(row[idxTaxes]) : 0,
+            otherCharges: 0,
+            grossPnL: gross,
+            netPnL: net,
+            status: net > 0 ? 'Profit' : net < 0 ? 'Loss' : 'Breakeven',
+            strategy: (idxStrategy !== -1 && row[idxStrategy]) ? String(row[idxStrategy]) : 'Unknown',
+            emotion: (idxEmotion !== -1 && row[idxEmotion]) ? String(row[idxEmotion]) as any : 'Neutral',
+            notes: (idxNotes !== -1 && row[idxNotes]) ? String(row[idxNotes]) : '',
+          });
+        }
+
+        if (newTrades.length > 0 && onAddMultipleTrades) {
+          onAddMultipleTrades(newTrades);
+          alert(`Successfully imported ${newTrades.length} trades.`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to parse the file. Please ensure it is a valid CSV or Excel file.');
+      }
+    };
+    reader.readAsBinaryString(file);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const currentLiveMonth = String(new Date().getMonth() + 1).padStart(2, '0');
   const currentLiveYear = String(new Date().getFullYear());
 
@@ -184,6 +355,21 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                 <span>Send to Mentor</span>
               </button>
             )}
+
+            <input
+              type="file"
+              accept=".csv, .xlsx, .xls"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer"
+            >
+              <Upload className="w-4 h-4 text-indigo-600" />
+              <span>Import Trades</span>
+            </button>
 
             <button
               onClick={() => exportTradesToExcel(filteredTrades, traderName)}

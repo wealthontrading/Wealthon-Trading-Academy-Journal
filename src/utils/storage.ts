@@ -98,6 +98,22 @@ export function addTrade(trade: Omit<Trade, 'id' | 'createdAt'>, userEmail?: str
   return newTrade;
 }
 
+export function addMultipleTrades(newTrades: Omit<Trade, 'id' | 'createdAt'>[], userEmail?: string): Trade[] {
+  const trades = getStoredTrades(userEmail);
+  const processedTrades: Trade[] = newTrades.map((t, idx) => ({
+    ...t,
+    id: 'trade_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).substr(2, 4),
+    createdAt: Date.now(),
+  }));
+  const updated = [...processedTrades, ...trades];
+  saveStoredTrades(updated, userEmail);
+  
+  // Save each to firestore
+  processedTrades.forEach(t => saveTradeToFirestore(t, userEmail));
+  
+  return updated;
+}
+
 export function updateTrade(id: string, updatedFields: Partial<Trade>, userEmail?: string): Trade[] {
   const trades = getStoredTrades(userEmail);
   const updated = trades.map((t) => (t.id === id ? { ...t, ...updatedFields } : t));
