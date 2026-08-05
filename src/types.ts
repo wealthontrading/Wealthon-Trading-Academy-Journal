@@ -56,8 +56,8 @@ export interface StudentAccount {
   status: 'approved' | 'pending' | 'rejected' | 'disabled';
   registeredAt: number;
   approvedAt?: number;
+  accessExpiry?: number;
   notes?: string;
-  subscriptionExpiry?: number | null; // null means lifetime, number means expiry timestamp
 }
 
 export interface UserSession {
@@ -65,6 +65,7 @@ export interface UserSession {
   role: 'student' | 'admin';
   name: string;
   plan: string; // "Active Plan - Lifetime License"
+  accessExpiry?: number;
 }
 
 export interface TraderProfile {
