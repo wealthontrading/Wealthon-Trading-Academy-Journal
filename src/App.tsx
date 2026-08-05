@@ -386,13 +386,14 @@ export default function App() {
   };
 
   const handleSaveTrade = (tradeData: Omit<Trade, 'id' | 'createdAt'>, existingId?: string) => {
+    let updatedList: Trade[];
     if (existingId) {
-      const updatedList = updateTrade(existingId, tradeData, activeUserEmail);
-      setTrades(updatedList);
+      updatedList = updateTrade(existingId, tradeData, activeUserEmail);
     } else {
       addTrade(tradeData, activeUserEmail);
-      setTrades(getStoredTrades(activeUserEmail));
+      updatedList = getStoredTrades(activeUserEmail);
     }
+    setTrades(updatedList);
     syncStrategiesFromTrades([tradeData]);
     setIsAddTradeOpen(false);
     setTradeToEdit(null);

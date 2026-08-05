@@ -116,7 +116,24 @@ export function addMultipleTrades(newTrades: Omit<Trade, 'id' | 'createdAt'>[], 
 
 export function updateTrade(id: string, updatedFields: Partial<Trade>, userEmail?: string): Trade[] {
   const trades = getStoredTrades(userEmail);
-  const updated = trades.map((t) => (t.id === id ? { ...t, ...updatedFields } : t));
+  let found = false;
+  const updated = trades.map((t) => {
+    if (t.id === id) {
+      found = true;
+      return { ...t, ...updatedFields };
+    }
+    return t;
+  });
+
+  if (!found && updatedFields) {
+    const matched = {
+      ...updatedFields,
+      id,
+      createdAt: Date.now(),
+    } as Trade;
+    updated.unshift(matched);
+  }
+
   saveStoredTrades(updated, userEmail);
   const matched = updated.find((t) => t.id === id);
   if (matched) {

@@ -116,6 +116,32 @@ export async function clearAllStudentsFromFirestore() {
   }
 }
 
+// Helper to get and set local trades safely within firebaseSync
+function getLocalTrades(userEmail?: string): Trade[] {
+  try {
+    const key = !userEmail
+      ? 'trading_journal_trades'
+      : `trading_journal_trades_${userEmail.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+    const data = localStorage.getItem(key);
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function setLocalTrades(trades: Trade[], userEmail?: string): void {
+  try {
+    const key = !userEmail
+      ? 'trading_journal_trades'
+      : `trading_journal_trades_${userEmail.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+    localStorage.setItem(key, JSON.stringify(trades));
+  } catch {
+    // ignore
+  }
+}
+
 // ----------------------------------------------------
 // TRADES COLLECTION SYNC
 // ----------------------------------------------------
@@ -131,13 +157,34 @@ export function subscribeTradesFromFirestore(
     return onSnapshot(
       q,
       (snapshot) => {
-        const tradesList: Trade[] = [];
+        const fsTradesMap = new Map<string, Trade>();
         snapshot.forEach((docSnap) => {
-          tradesList.push(docSnap.data() as Trade);
+          const t = docSnap.data() as Trade;
+          if (t && t.id) {
+            fsTradesMap.set(t.id, t);
+          }
         });
-        // Sort by createdAt descending
-        tradesList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        onUpdate(tradesList);
+
+        const localTrades = getLocalTrades(userEmail);
+        const mergedMap = new Map<string, Trade>();
+
+        // 1. Local trades first
+        localTrades.forEach((t) => {
+          if (t && t.id) {
+            mergedMap.set(t.id, t);
+          }
+        });
+
+        // 2. Firestore trades overlay
+        fsTradesMap.forEach((t, id) => {
+          mergedMap.set(id, t);
+        });
+
+        const mergedList = Array.from(mergedMap.values());
+        mergedList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        setLocalTrades(mergedList, userEmail);
+        onUpdate(mergedList);
       },
       (error) => {
         console.warn('Firestore trades sync error:', error);
@@ -156,7 +203,8 @@ export async function saveTradeToFirestore(trade: Trade, userEmail?: string) {
     const tradeData = { ...trade, userEmail: cleanEmail };
     const docId = cleanDocId(trade.id);
     const docRef = doc(db, path, docId);
-    await setDoc(docRef, tradeData, { merge: true });
+    const safeData = JSON.parse(JSON.stringify(tradeData));
+    await setDoc(docRef, safeData, { merge: true });
   } catch (err) {
     console.warn('Failed to save trade to Firestore:', err);
   }
