@@ -26,7 +26,7 @@ import {
   updateTrade,
 } from './utils/storage';
 import { calculateMetrics } from './utils/calculations';
-import { DailyNote, StrategyItem, SystemMaintenanceState, Trade, TraderProfile, TradingGoal, TradingRule, UserSession } from './types';
+import { DailyNote, StrategyItem, SystemMaintenanceState, Trade, TraderProfile, TradingGoal, TradingRule, UserSession, StudentAccount } from './types';
 import { getStoredMaintenanceState, getStoredSession, saveStoredSession } from './utils/studentStorage';
 import {
   subscribeDailyNotesFromFirestore,
@@ -177,17 +177,40 @@ export default function App() {
 
   // Global real-time student account listener (keeps student list synced for login & checks access)
   useEffect(() => {
-    const unsubscribeStudents = subscribeStudentsFromFirestore((studentsList) => {
-      if (Array.isArray(studentsList) && session && session.role === 'student') {
+    let interval: ReturnType<typeof setInterval>;
+    let latestStudents: StudentAccount[] = [];
+
+    const checkExpiry = () => {
+      if (session && session.role === 'student' && latestStudents.length > 0) {
         const currentEmail = session.email.trim().toLowerCase();
-        const match = studentsList.find((s) => s.email.trim().toLowerCase() === currentEmail);
+        const match = latestStudents.find((s) => s.email.trim().toLowerCase() === currentEmail);
+        
         if (match && (match.status === 'rejected' || match.status === 'disabled')) {
           alert(`Your account access (${session.email}) has been modified or removed by the administrator.`);
           handleLogout();
+          return;
+        }
+
+        if (match && match.subscriptionExpiry && Date.now() > match.subscriptionExpiry) {
+          alert(`Your 24-hour access has expired. Please contact the administrator to renew your subscription.`);
+          handleLogout();
         }
       }
+    };
+
+    const unsubscribeStudents = subscribeStudentsFromFirestore((studentsList) => {
+      if (Array.isArray(studentsList)) {
+        latestStudents = studentsList;
+        checkExpiry();
+      }
     });
-    return () => unsubscribeStudents();
+
+    interval = setInterval(checkExpiry, 60000); // Check every minute
+
+    return () => {
+      unsubscribeStudents();
+      clearInterval(interval);
+    };
   }, [session]);
 
   // Tab State

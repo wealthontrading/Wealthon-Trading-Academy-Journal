@@ -91,6 +91,9 @@ export function adminAddAndApproveStudent(
       name: name.trim() || updated[existingIdx].name,
       password: password ? password : updated[existingIdx].password,
     };
+    if (updated[existingIdx].subscriptionExpiry === undefined) {
+      updated[existingIdx].subscriptionExpiry = Date.now() + 24 * 60 * 60 * 1000;
+    }
     saveStoredStudents(updated);
     saveStudentToFirestore(updated[existingIdx]);
     return { success: true, message: `Updated and approved ${cleanEmail}!`, student: updated[existingIdx] };
@@ -104,6 +107,7 @@ export function adminAddAndApproveStudent(
     status: 'approved',
     registeredAt: Date.now(),
     approvedAt: Date.now(),
+    subscriptionExpiry: Date.now() + 24 * 60 * 60 * 1000,
   };
 
   const updated = [newStudent, ...students];
@@ -121,11 +125,37 @@ export function adminUpdateStudentStatus(
   let updatedStudent: StudentAccount | undefined;
   const updated = students.map((s) => {
     if (s.email.toLowerCase() === email.trim().toLowerCase()) {
-      const res = {
+      const isNewlyApproved = status === 'approved' && s.status !== 'approved';
+      const res: StudentAccount = {
         ...s,
         status,
         approvedAt: status === 'approved' ? Date.now() : s.approvedAt,
         password: newPassword ? newPassword : s.password,
+      };
+      // Only set a 24h expiry if it's newly approved and doesn't already have one (or maybe we always set 24h for new approvals)
+      if (isNewlyApproved && s.subscriptionExpiry === undefined) {
+        res.subscriptionExpiry = Date.now() + 24 * 60 * 60 * 1000;
+      }
+      updatedStudent = res;
+      return res;
+    }
+    return s;
+  });
+  saveStoredStudents(updated);
+  if (updatedStudent) {
+    saveStudentToFirestore(updatedStudent);
+  }
+  return updated;
+}
+
+export function adminRenewStudentSubscription(email: string, plan: '24h' | 'lifetime'): StudentAccount[] {
+  const students = getStoredStudents();
+  let updatedStudent: StudentAccount | undefined;
+  const updated = students.map((s) => {
+    if (s.email.toLowerCase() === email.trim().toLowerCase()) {
+      const res: StudentAccount = {
+        ...s,
+        subscriptionExpiry: plan === 'lifetime' ? null : Date.now() + 24 * 60 * 60 * 1000,
       };
       updatedStudent = res;
       return res;
@@ -181,6 +211,14 @@ export function authenticateStudent(
     return {
       success: false,
       message: 'Your student account has been disabled. Contact Admin for support.',
+    };
+  }
+
+  // Check Subscription Expiry
+  if (student.subscriptionExpiry && Date.now() > student.subscriptionExpiry) {
+    return {
+      success: false,
+      message: 'SUBSCRIPTION_EXPIRED',
     };
   }
 

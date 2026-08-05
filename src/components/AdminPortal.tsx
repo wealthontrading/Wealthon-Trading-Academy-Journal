@@ -35,6 +35,7 @@ import {
   adminAddAndApproveStudent,
   adminDeleteStudent,
   adminUpdateStudentStatus,
+  adminRenewStudentSubscription,
   getStoredMaintenanceState,
   getStoredStudents,
   saveStoredMaintenanceState,
@@ -199,6 +200,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setEditingPasswordEmail(null);
     setEditPassVal('');
     setBannerMsg({ type: 'success', text: `Password updated for student ${email}!` });
+    refreshStudents();
+  };
+
+  const handleRenewSubscription = (email: string, plan: '24h' | 'lifetime') => {
+    adminRenewStudentSubscription(email, plan);
+    setBannerMsg({ type: 'success', text: `Subscription renewed for ${email} (${plan === '24h' ? '24 Hours' : 'Lifetime'})!` });
     refreshStudents();
   };
 
@@ -742,6 +749,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     <th className="py-3 px-4">Student Email & Name</th>
                     <th className="py-3 px-4">Approval Status</th>
                     <th className="py-3 px-4">Password</th>
+                    <th className="py-3 px-4">Subscription</th>
                     <th className="py-3 px-4">Trades Logged</th>
                     <th className="py-3 px-4 text-right">Actions / Inspect Journal</th>
                   </tr>
@@ -833,6 +841,43 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 </button>
                               </div>
                             )}
+                          </td>
+
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col space-y-1">
+                              {s.subscriptionExpiry === null || s.subscriptionExpiry === undefined ? (
+                                <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded w-max">
+                                  <Star className="w-3 h-3" />
+                                  <span>Lifetime Access</span>
+                                </span>
+                              ) : (
+                                <span className={`inline-flex items-center space-x-1 px-2 py-0.5 text-[10px] font-bold rounded w-max ${
+                                  Date.now() > s.subscriptionExpiry 
+                                    ? 'bg-rose-50 text-rose-700' 
+                                    : 'bg-blue-50 text-blue-700'
+                                }`}>
+                                  <Clock className="w-3 h-3" />
+                                  <span>
+                                    {Date.now() > s.subscriptionExpiry ? 'Expired' : 'Expires'}:{' '}
+                                    {new Date(s.subscriptionExpiry).toLocaleDateString()} {new Date(s.subscriptionExpiry).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </span>
+                              )}
+                              <div className="flex space-x-1 pt-1">
+                                <button
+                                  onClick={() => handleRenewSubscription(s.email, '24h')}
+                                  className="text-[9px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-semibold cursor-pointer border border-slate-200"
+                                >
+                                  +24h
+                                </button>
+                                <button
+                                  onClick={() => handleRenewSubscription(s.email, 'lifetime')}
+                                  className="text-[9px] px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-semibold cursor-pointer border border-slate-200"
+                                >
+                                  Lifetime
+                                </button>
+                              </div>
+                            </div>
                           </td>
 
                           <td className="py-3 px-4 font-semibold text-slate-700">

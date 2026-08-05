@@ -57,6 +57,7 @@ export interface StudentAccount {
   registeredAt: number;
   approvedAt?: number;
   notes?: string;
+  subscriptionExpiry?: number | null; // null means lifetime, number means expiry timestamp
 }
 
 export interface UserSession {
