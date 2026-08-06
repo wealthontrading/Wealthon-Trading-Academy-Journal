@@ -267,7 +267,7 @@ export const ExecutionModePerformanceTable: React.FC<ExecutionModePerformanceTab
             {activeMetrics.map((m) => {
               const isPositive = m.netPnL >= 0;
               return (
-                <tr key={m.modeName} className="hover:bg-slate-50/80 transition">
+                <tr key={m.modeName} className="hover:bg-slate-50 transition">
                   {/* Mode Name */}
                   <td className="py-3.5 px-4 font-bold text-slate-900">
                     <div className="flex items-center space-x-2">

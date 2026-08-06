@@ -81,6 +81,7 @@ export function adminAddAndApproveStudent(
 
   const students = getStoredStudents();
   const existingIdx = students.findIndex((s) => s.email.toLowerCase() === cleanEmail);
+  const oneYearExpiry = Date.now() + 365 * 24 * 60 * 60 * 1000;
 
   if (existingIdx >= 0) {
     const updated = [...students];
@@ -88,7 +89,7 @@ export function adminAddAndApproveStudent(
       ...updated[existingIdx],
       status: 'approved',
       approvedAt: Date.now(),
-      accessExpiry: Date.now() + 48 * 60 * 60 * 1000,
+      expiryDate: updated[existingIdx].expiryDate || oneYearExpiry,
       name: name.trim() || updated[existingIdx].name,
       password: password ? password : updated[existingIdx].password,
     };
@@ -105,7 +106,7 @@ export function adminAddAndApproveStudent(
     status: 'approved',
     registeredAt: Date.now(),
     approvedAt: Date.now(),
-    accessExpiry: Date.now() + 48 * 60 * 60 * 1000,
+    expiryDate: oneYearExpiry,
   };
 
   const updated = [newStudent, ...students];
@@ -117,30 +118,55 @@ export function adminAddAndApproveStudent(
 export function adminUpdateStudentStatus(
   email: string,
   status: 'approved' | 'pending' | 'rejected' | 'disabled',
-  newPassword?: string
+  newPassword?: string,
+  renew: boolean = false
 ): StudentAccount[] {
   const students = getStoredStudents();
   let updatedStudent: StudentAccount | undefined;
   const updated = students.map((s) => {
     if (s.email.toLowerCase() === email.trim().toLowerCase()) {
-      let accessExpiry = s.accessExpiry;
+      const now = Date.now();
+      const oneYearExpiry = now + 365 * 24 * 60 * 60 * 1000;
       
+      let newExpiryDate = s.expiryDate;
       if (status === 'approved') {
-        if (s.status === 'pending') {
-          // First approval -> 2 days (48 hours)
-          accessExpiry = Date.now() + 48 * 60 * 60 * 1000;
-        } else if (s.status === 'disabled' || s.status === 'rejected') {
-          // Re-approval -> lifetime (clear expiry)
-          accessExpiry = undefined;
+        if (!s.expiryDate || renew) {
+          newExpiryDate = oneYearExpiry;
         }
       }
 
-      const res: StudentAccount = {
+      const res = {
         ...s,
         status,
-        approvedAt: status === 'approved' ? Date.now() : s.approvedAt,
+        approvedAt: status === 'approved' && (!s.approvedAt || renew) ? now : s.approvedAt,
+        expiryDate: newExpiryDate,
         password: newPassword ? newPassword : s.password,
-        accessExpiry,
+      };
+      updatedStudent = res;
+      return res;
+    }
+    return s;
+  });
+  saveStoredStudents(updated);
+  if (updatedStudent) {
+    saveStudentToFirestore(updatedStudent);
+  }
+  return updated;
+}
+
+export function adminUpdateStudentDates(
+  email: string,
+  approvedAt: number | undefined,
+  expiryDate: number | undefined
+): StudentAccount[] {
+  const students = getStoredStudents();
+  let updatedStudent: StudentAccount | undefined;
+  const updated = students.map((s) => {
+    if (s.email.toLowerCase() === email.trim().toLowerCase()) {
+      const res = {
+        ...s,
+        approvedAt: approvedAt !== undefined ? approvedAt : s.approvedAt,
+        expiryDate: expiryDate !== undefined ? expiryDate : s.expiryDate,
       };
       updatedStudent = res;
       return res;
@@ -207,21 +233,12 @@ export function authenticateStudent(
     };
   }
 
-  // Check 2-day expiry
-  if (student.accessExpiry && Date.now() > student.accessExpiry) {
-    adminUpdateStudentStatus(cleanEmail, 'disabled');
-    return {
-      success: false,
-      message: 'Your 2-day access has expired. Please ask the Admin to re-approve your account for lifetime access.',
-    };
-  }
-
   const session: UserSession = {
     email: student.email,
     name: student.name,
     role: 'student',
-    plan: student.accessExpiry ? 'Active Plan - Trial' : 'Active Plan - Lifetime License',
-    accessExpiry: student.accessExpiry,
+    plan: 'Active Plan - Limited',
+    expiryDate: student.expiryDate,
   };
 
   saveStoredSession(session);

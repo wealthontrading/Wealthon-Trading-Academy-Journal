@@ -14,7 +14,8 @@ import {
   Sparkles,
   HeartHandshake,
   Loader2,
-  Bot
+  Bot,
+  RefreshCw
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -27,7 +28,7 @@ interface CustomerSupportModalProps {
   onClose: () => void;
   profile?: TraderProfile;
   userSession?: UserSession | null;
-  initialTab?: 'support' | 'feedback';
+  initialTab?: 'support' | 'feedback' | 'renew';
 }
 
 export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
@@ -37,7 +38,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
   userSession,
   initialTab = 'support'
 }) => {
-  const [activeTab, setActiveTab] = useState<'support' | 'feedback'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'support' | 'feedback' | 'renew'>(initialTab);
 
   // Chat Support State
   const [showWhatsApp, setShowWhatsApp] = useState(false);
@@ -235,7 +236,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+              className="p-2 rounded-xl bg-white hover:bg-white text-white transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -273,6 +274,18 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
             >
               <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
               <span>Submit Feedback & Review</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('renew')}
+              className={`pb-3 px-4 text-xs font-bold transition border-b-2 flex items-center space-x-1.5 cursor-pointer ${
+                activeTab === 'renew'
+                  ? 'border-indigo-600 text-indigo-700 font-extrabold'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span>Renew Plan</span>
             </button>
           </div>
 
@@ -406,7 +419,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
 
                 {/* Support Info Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                     <div className="flex items-center space-x-2 text-blue-600 mb-1">
                       <Mail className="w-4 h-4" />
                       <span className="text-xs font-black uppercase tracking-wider text-slate-700">Email Support</span>
@@ -420,7 +433,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
                     <p className="text-[11px] text-slate-500">24h Response Time</p>
                   </div>
 
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                     <div className="flex items-center space-x-2 text-amber-600 mb-1">
                       <Clock className="w-4 h-4" />
                       <span className="text-xs font-black uppercase tracking-wider text-slate-700">Working Hours</span>
@@ -440,8 +453,45 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
                     <li>Student Login & Password Reset Assistance</li>
                     <li>Broker Connection setup (Zerodha, AngelOne, Dhan, Groww, Upstox)</li>
                     <li>Trading Journal Report export for Mentors</li>
-                    <li>Lifetime License Plan Activation Verification</li>
+                    <li>Limited Plan Activation Verification</li>
                   </ul>
+                </div>
+
+              </div>
+            )}
+
+            {activeTab === 'renew' && (
+              <div className="space-y-6">
+                {/* Renew Team Contact */}
+                <div className="p-5 bg-gradient-to-r from-indigo-500/10 via-indigo-500/5 to-slate-50 rounded-2xl border border-indigo-300/80 space-y-3.5 shadow-xs">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-3 bg-indigo-500 text-white rounded-xl shadow-md shrink-0">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-black uppercase tracking-wider text-indigo-900 block">
+                          Account Renewal Support
+                        </span>
+                        <h4 className="text-sm font-extrabold text-slate-900 mt-0.5">
+                          Need to renew your limited plan?
+                        </h4>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Connect with our dedicated Renewal Team via WhatsApp. We will automatically include your account details for faster processing.
+                  </p>
+                  <a
+                    href={`https://wa.me/918547742160?text=${encodeURIComponent(`Hi Renew Team, I would like to renew my WealthOn Trading Academy account. My details are:\nName: ${userSession?.name || ''}\nEmail: ${userSession?.email || ''}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm rounded-xl transition flex items-center justify-center space-x-2 shadow-md shadow-indigo-600/20 cursor-pointer"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Contact Renew Team on WhatsApp</span>
+                    <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                  </a>
                 </div>
               </div>
             )}

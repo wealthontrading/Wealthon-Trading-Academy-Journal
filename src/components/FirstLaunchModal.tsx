@@ -38,7 +38,7 @@ export const FirstLaunchModal: React.FC<FirstLaunchModalProps> = ({ isOpen, onSa
           {/* Header Banner */}
           <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-6 text-white">
             <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-md">
+              <div className="p-2.5 bg-white rounded-xl backdrop-blur-md">
                 <TrendingUp className="w-6 h-6 text-blue-200" />
               </div>
               <div>

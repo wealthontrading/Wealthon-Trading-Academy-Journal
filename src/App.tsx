@@ -65,7 +65,9 @@ import { JournalSavedModal } from './components/JournalSavedModal';
 import { GoalToastNotification, ToastMessage, getRandomReinforcementQuote } from './components/GoalToastNotification';
 import { ExecutionModePerformanceTable } from './components/ExecutionModePerformanceTable';
 import { MonthlyPerformance } from './components/MonthlyPerformance';
-import { Eye, ShieldCheck, ArrowLeft, Bot, Sparkles, ArrowRight } from 'lucide-react';
+import { Eye, ShieldCheck, ArrowLeft, Bot, Sparkles, ArrowRight, Clock } from 'lucide-react';
+
+import { RenewalPage } from './components/RenewalPage';
 
 export default function App() {
   const [session, setSession] = useState<UserSession | null>(() => getStoredSession());
@@ -181,12 +183,9 @@ export default function App() {
       if (Array.isArray(studentsList) && session && session.role === 'student') {
         const currentEmail = session.email.trim().toLowerCase();
         const match = studentsList.find((s) => s.email.trim().toLowerCase() === currentEmail);
-        if (match) {
-          const isExpired = match.accessExpiry && Date.now() > match.accessExpiry;
-          if (match.status === 'rejected' || match.status === 'disabled' || isExpired) {
-            alert(isExpired ? 'Your 2-day access has expired. Please ask the Admin to re-approve your account.' : `Your account access (${session.email}) has been modified or removed by the administrator.`);
-            handleLogout();
-          }
+        if (match && (match.status === 'rejected' || match.status === 'disabled')) {
+          alert(`Your account access (${session.email}) has been modified or removed by the administrator.`);
+          handleLogout();
         }
       }
     });
@@ -594,8 +593,44 @@ export default function App() {
     );
   }
 
+  // 3. If student and expired, render RenewalPage
+  if (session.role === 'student' && session.expiryDate && Date.now() > session.expiryDate) {
+    return <RenewalPage session={session} onLogout={handleLogout} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
+      {/* Expiry Notification Banner */}
+      {session.role === 'student' && session.expiryDate && (
+        (() => {
+          const daysLeft = Math.ceil((session.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
+          if (daysLeft <= 30 && daysLeft > 0) {
+            const isCritical = daysLeft <= 1;
+            const isWarning = daysLeft <= 7 && daysLeft > 1;
+            return (
+              <div className={`px-4 py-2 text-xs font-bold flex items-center justify-center shadow-md ${
+                isCritical ? 'bg-rose-600 text-white animate-pulse' :
+                isWarning ? 'bg-amber-500 text-white' :
+                'bg-indigo-600 text-white'
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4" />
+                  <span>
+                    {isCritical 
+                      ? 'CRITICAL ALERT: Your subscription expires tomorrow! Please contact Admin to renew.'
+                      : isWarning
+                      ? `WARNING: Your subscription expires in ${daysLeft} days. Please prepare to renew.`
+                      : `Notice: Your subscription will expire in ${daysLeft} days.`
+                    }
+                  </span>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()
+      )}
+
       {/* Admin Inspection Banner */}
       {session.role === 'admin' && inspectedStudent && (
         <div className="bg-indigo-900 text-white px-4 py-2 text-xs font-bold flex items-center justify-between shadow-md">

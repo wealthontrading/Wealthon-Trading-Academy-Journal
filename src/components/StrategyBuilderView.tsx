@@ -924,7 +924,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search strategy by name, timeframe, or rules..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50/50"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50"
                 />
               </div>
 
@@ -1099,7 +1099,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
 
                       {/* Metrics Row */}
                       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-3 border-t border-slate-100">
-                        <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-100 space-y-1">
+                        <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-1">
                           <span className="text-[11px] text-slate-500 font-medium block">
                             Win Ratio
                           </span>
@@ -1135,7 +1135,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                           </div>
                         </div>
 
-                        <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-100 space-y-1">
+                        <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-1">
                           <span className="text-[11px] text-slate-500 font-medium block">
                             Net P&L (₹)
                           </span>
@@ -1155,7 +1155,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                           </span>
                         </div>
 
-                        <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-100 space-y-1">
+                        <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-1">
                           <span className="text-[11px] text-slate-500 font-medium block">
                             Wins / Losses
                           </span>
@@ -1172,7 +1172,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                           </span>
                         </div>
 
-                        <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-100 space-y-1">
+                        <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-1">
                           <span className="text-[11px] text-slate-500 font-medium block">
                             Profit Factor
                           </span>
@@ -1184,7 +1184,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                           </span>
                         </div>
 
-                        <div className="bg-slate-50/80 rounded-2xl p-3 border border-slate-100 space-y-1 col-span-2 sm:col-span-1">
+                        <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-1 col-span-2 sm:col-span-1">
                           <span className="text-[11px] text-slate-500 font-medium block">
                             Avg Win / Loss
                           </span>
@@ -1553,7 +1553,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                       </thead>
                       <tbody className="divide-y divide-slate-100 font-medium">
                         {singleStratAnalytics.stratTrades.map((t) => (
-                          <tr key={t.id} className="hover:bg-slate-50/80 transition">
+                          <tr key={t.id} className="hover:bg-slate-50 transition">
                             <td className="py-2.5 px-3 font-semibold text-slate-700">{t.date}</td>
                             <td className="py-2.5 px-3 font-black text-slate-900">{t.indexOrStock || 'N/A'}</td>
                             <td className="py-2.5 px-3">

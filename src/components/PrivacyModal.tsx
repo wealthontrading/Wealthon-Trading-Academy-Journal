@@ -21,12 +21,12 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
         >
           <div className="p-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="p-2 bg-white/10 rounded-xl">
+              <div className="p-2 bg-white rounded-xl">
                 <Lock className="w-5 h-5 text-blue-200" />
               </div>
               <h2 className="text-lg font-bold">Privacy, Refund Policy & Support</h2>
             </div>
-            <button onClick={onClose} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer">
+            <button onClick={onClose} className="p-1.5 rounded-lg bg-white hover:bg-white text-white cursor-pointer">
               <X className="w-5 h-5" />
             </button>
           </div>

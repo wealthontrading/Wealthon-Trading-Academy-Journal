@@ -350,7 +350,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
           {/* Header */}
           <div className="p-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center justify-between shrink-0">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-white/10 rounded-xl">
+              <div className="p-2 bg-white rounded-xl">
                 <PlusCircle className="w-5 h-5 text-blue-200" />
               </div>
               <div>
@@ -365,7 +365,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+              className="p-1.5 rounded-lg bg-white hover:bg-white text-white transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -624,7 +624,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
             </div>
 
             {/* Row 3: Executions & Tranches (Entry Price, Exit Price, Quantity) */}
-            <div className="p-4 bg-slate-50/90 rounded-xl border border-slate-200 space-y-3">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <span className="text-xs font-bold uppercase text-slate-800 tracking-wider block">

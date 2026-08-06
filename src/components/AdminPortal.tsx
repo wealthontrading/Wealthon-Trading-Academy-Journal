@@ -35,6 +35,7 @@ import {
   adminAddAndApproveStudent,
   adminDeleteStudent,
   adminUpdateStudentStatus,
+  adminUpdateStudentDates,
   getStoredMaintenanceState,
   getStoredStudents,
   saveStoredMaintenanceState,
@@ -65,7 +66,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Live Students State
   const [students, setStudents] = useState<StudentAccount[]>(() => getStoredStudents());
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending' | 'disabled' | 'rejected'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending' | 'disabled' | 'rejected' | 'expiring' | 'expired'>('all');
 
   useEffect(() => {
     const unsub = subscribeStudentsFromFirestore((fsStudents) => {
@@ -88,6 +89,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Password editing
   const [editingPasswordEmail, setEditingPasswordEmail] = useState<string | null>(null);
   const [editPassVal, setEditPassVal] = useState('');
+
+  // Date editing
+  const [editingDateEmail, setEditingDateEmail] = useState<string | null>(null);
+  const [editApprovedAt, setEditApprovedAt] = useState<string>('');
+  const [editExpiryDate, setEditExpiryDate] = useState<string>('');
 
   // Banner
   const [bannerMsg, setBannerMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -184,6 +190,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     refreshStudents();
   };
 
+  const handleRenew = (email: string) => {
+    adminUpdateStudentStatus(email, 'approved', undefined, true);
+    setBannerMsg({
+      type: 'success',
+      text: `Renewed account plan for ${email} for 1 year!`,
+    });
+    refreshStudents();
+  };
+
   const handleApproveStatus = (email: string, status: 'approved' | 'disabled' | 'rejected') => {
     adminUpdateStudentStatus(email, status);
     setBannerMsg({
@@ -202,10 +217,31 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     refreshStudents();
   };
 
+  const handleEditDates = (student: StudentAccount) => {
+    setEditingDateEmail(student.email);
+    // Format to yyyy-MM-ddThh:mm
+    const formatForInput = (ms?: number) => {
+      if (!ms) return '';
+      const d = new Date(ms);
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    };
+    setEditApprovedAt(formatForInput(student.approvedAt || student.registeredAt));
+    setEditExpiryDate(formatForInput(student.expiryDate));
+  };
+
+  const handleSaveDates = (email: string) => {
+    const approvedAtTime = editApprovedAt ? new Date(editApprovedAt).getTime() : undefined;
+    const expiryDateTime = editExpiryDate ? new Date(editExpiryDate).getTime() : undefined;
+    adminUpdateStudentDates(email, approvedAtTime, expiryDateTime);
+    setEditingDateEmail(null);
+    setBannerMsg({ type: 'success', text: `Dates updated for student ${email}!` });
+    refreshStudents();
+  };
+
   const handleDeleteStudent = (email: string) => {
-    if (confirm(`Are you sure you want to completely ban/reject student ${email}? They will not be able to log in or request access again.`)) {
-      adminUpdateStudentStatus(email, 'rejected');
-      setBannerMsg({ type: 'success', text: `Banned student record for ${email}!` });
+    if (confirm(`Are you sure you want to permanently delete student ${email}? If deleted, they will be able to request access again in the future.`)) {
+      adminDeleteStudent(email);
+      setBannerMsg({ type: 'success', text: `Deleted student record for ${email}!` });
       refreshStudents();
     }
   };
@@ -214,7 +250,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     const matchesSearch =
       s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = statusFilter === 'all' || s.status === statusFilter;
+    
+    let matchesFilter = false;
+    if (statusFilter === 'all') matchesFilter = true;
+    else if (statusFilter === 'expiring') {
+      if (s.status === 'approved' && s.expiryDate && Date.now() <= s.expiryDate) {
+        const daysLeft = Math.ceil((s.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
+        matchesFilter = daysLeft <= 30 && daysLeft > 0;
+      }
+    } else if (statusFilter === 'expired') {
+      matchesFilter = s.status === 'approved' && s.expiryDate !== undefined && Date.now() > s.expiryDate;
+    } else {
+      matchesFilter = s.status === statusFilter;
+    }
+    
     return matchesSearch && matchesFilter;
   });
 
@@ -223,8 +272,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const pendingStudents = students.filter((s) => s.status === 'pending').length;
   const rejectedStudents = students.filter((s) => s.status === 'rejected').length;
 
+  const expiredStudents = students.filter(s => s.status === 'approved' && s.expiryDate && Date.now() > s.expiryDate).length;
+  const expiringSoonStudents = students.filter(s => {
+    if (s.status !== 'approved' || !s.expiryDate || Date.now() > s.expiryDate) return false;
+    const daysLeft = Math.ceil((s.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
+    return daysLeft <= 30 && daysLeft > 0;
+  }).length;
+
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 pb-12 font-sans">
+      {/* Admin Reminders Banner */}
+      {(expiredStudents > 0 || expiringSoonStudents > 0) && (
+        <div className="bg-amber-100 text-amber-900 px-4 py-2 text-xs font-bold flex items-center justify-center shadow-md border-b border-amber-200">
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-amber-600" />
+            <span>
+              <strong>Attention:</strong> {expiredStudents > 0 ? `${expiredStudents} student(s) have expired subscriptions.` : ''} 
+              {expiredStudents > 0 && expiringSoonStudents > 0 ? ' And ' : ''}
+              {expiringSoonStudents > 0 ? `${expiringSoonStudents} student(s) are expiring within 30 days.` : ''}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Admin Top Header Bar */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
@@ -278,15 +348,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
 
           <div className="grid grid-cols-3 gap-3 w-full md:w-auto shrink-0 font-mono">
-            <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center">
+            <div className="p-3 bg-white backdrop-blur-md rounded-2xl border border-white/10 text-center">
               <span className="text-[10px] uppercase text-blue-200 font-bold block">Registered</span>
               <span className="text-2xl font-black text-white">{totalStudents}</span>
             </div>
-            <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center">
+            <div className="p-3 bg-white backdrop-blur-md rounded-2xl border border-white/10 text-center">
               <span className="text-[10px] uppercase text-blue-200 font-bold block">Approved</span>
               <span className="text-2xl font-black text-emerald-400">{approvedStudents}</span>
             </div>
-            <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 text-center">
+            <div className="p-3 bg-white backdrop-blur-md rounded-2xl border border-white/10 text-center">
               <span className="text-[10px] uppercase text-blue-200 font-bold block">Pending</span>
               <span className="text-2xl font-black text-amber-300">{pendingStudents}</span>
             </div>
@@ -408,7 +478,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               : 'bg-white border-slate-200'
           }`}
         >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
             <div className="flex items-center space-x-3">
               <div
                 className={`p-3 rounded-2xl text-white shadow-md ${
@@ -547,7 +617,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200/80">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200">
             <div className="text-[11px] text-slate-500 flex items-center space-x-1.5">
               <Radio className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
               <span>
@@ -730,6 +800,24 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               >
                 Rejected ({rejectedStudents})
               </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('expiring')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
+                  statusFilter === 'expiring' ? 'bg-amber-500 text-white shadow-2xs' : 'text-amber-600 hover:text-amber-700'
+                }`}
+              >
+                Expiring ({expiringSoonStudents})
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('expired')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
+                  statusFilter === 'expired' ? 'bg-rose-700 text-white shadow-2xs' : 'text-rose-600 hover:text-rose-700'
+                }`}
+              >
+                Expired ({expiredStudents})
+              </button>
             </div>
           </div>
 
@@ -740,6 +828,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
                     <th className="py-3 px-4">Student Email & Name</th>
+                    <th className="py-3 px-4">Dates</th>
                     <th className="py-3 px-4">Approval Status</th>
                     <th className="py-3 px-4">Password</th>
                     <th className="py-3 px-4">Trades Logged</th>
@@ -757,29 +846,77 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     filteredStudents.map((s) => {
                       const studentTrades = getStoredTrades(s.email);
                       return (
-                        <tr key={s.id} className="hover:bg-slate-50/80 transition">
+                        <tr key={s.id} className="hover:bg-slate-50 transition">
                           <td className="py-3 px-4">
                             <p className="font-extrabold text-slate-900 text-xs">{s.email}</p>
                             <p className="text-[11px] text-slate-500">{s.name || 'Student'}</p>
                           </td>
 
-                          <td className="py-3 px-4">
-                            {s.status === 'approved' && (
-                              <div className="flex flex-col space-y-1 items-start">
-                                <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
-                                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                                  <span>Approved</span>
-                                </span>
-                                {s.accessExpiry ? (
-                                  <span className="text-[10px] text-amber-600 font-semibold bg-amber-50 px-1.5 py-0.5 rounded">
-                                    Trial Expires: {new Date(s.accessExpiry).toLocaleDateString()} {new Date(s.accessExpiry).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </span>
-                                ) : (
-                                  <span className="text-[10px] text-indigo-600 font-semibold bg-indigo-50 px-1.5 py-0.5 rounded">
-                                    Lifetime Access
-                                  </span>
-                                )}
+                          <td className="py-3 px-4 text-[11px] text-slate-600 space-y-1 w-56">
+                            {editingDateEmail === s.email ? (
+                              <div className="space-y-2">
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Login / Approved</label>
+                                  <input 
+                                    type="datetime-local" 
+                                    className="w-full text-xs p-1 border rounded"
+                                    value={editApprovedAt}
+                                    onChange={e => setEditApprovedAt(e.target.value)}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Expiry</label>
+                                  <input 
+                                    type="datetime-local" 
+                                    className="w-full text-xs p-1 border rounded"
+                                    value={editExpiryDate}
+                                    onChange={e => setEditExpiryDate(e.target.value)}
+                                  />
+                                </div>
+                                <div className="flex gap-2">
+                                  <button onClick={() => handleSaveDates(s.email)} className="text-xs bg-indigo-600 text-white px-2 py-1 rounded">Save</button>
+                                  <button onClick={() => setEditingDateEmail(null)} className="text-xs bg-slate-200 text-slate-800 px-2 py-1 rounded">Cancel</button>
+                                </div>
                               </div>
+                            ) : (
+                              <div className="group relative pr-6">
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="font-semibold">Login:</span>
+                                    <span>{new Date(s.approvedAt || s.registeredAt).toLocaleString()}</span>
+                                  </div>
+                                  {s.expiryDate && (
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span className="font-semibold">Expiry:</span>
+                                      <span className={Date.now() > s.expiryDate ? 'text-rose-600 font-bold' : ''}>
+                                        {new Date(s.expiryDate).toLocaleString()}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                <button 
+                                  onClick={() => handleEditDates(s)}
+                                  className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 text-indigo-600 hover:bg-indigo-50 rounded"
+                                  title="Edit Dates"
+                                >
+                                  <Wrench className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="py-3 px-4">
+                            {s.status === 'approved' && (!s.expiryDate || Date.now() <= s.expiryDate) && (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <span>Approved</span>
+                              </span>
+                            )}
+                            {s.status === 'approved' && s.expiryDate && Date.now() > s.expiryDate && (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-800 text-[11px] font-bold">
+                                <Clock className="w-3 h-3 text-rose-600" />
+                                <span>Expired</span>
+                              </span>
                             )}
                             {s.status === 'pending' && (
                               <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold animate-pulse">
@@ -872,6 +1009,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                   title="Disable account"
                                 >
                                   Disable
+                                </button>
+                              )}
+
+                              {s.status === 'approved' && s.expiryDate && Date.now() > s.expiryDate && (
+                                <button
+                                  onClick={() => handleRenew(s.email)}
+                                  className="px-2 py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition cursor-pointer text-xs font-semibold"
+                                  title="Renew plan for 1 year"
+                                >
+                                  Renew Plan
                                 </button>
                               )}
 

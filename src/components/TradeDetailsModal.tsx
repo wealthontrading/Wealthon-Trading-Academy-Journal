@@ -46,7 +46,7 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
                   <span className="text-xs uppercase tracking-wider font-bold opacity-80">
                     {trade.segment} Trade
                   </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 font-medium">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-white font-medium">
                     {trade.buyOrSell}
                   </span>
                 </div>

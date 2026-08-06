@@ -67,7 +67,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
               email: student.email,
               name: student.name || student.email.split('@')[0],
               role: 'student',
-              plan: 'Active Plan - Lifetime License',
+              plan: 'Active Plan - Limited',
+              expiryDate: student.expiryDate,
             };
             setTimeout(() => {
               onLoginSuccess(session);
@@ -161,7 +162,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
               email: existing.email,
               name: existing.name || name,
               role: 'student',
-              plan: 'Active Plan - Lifetime License',
+              plan: 'Active Plan - Limited',
+              expiryDate: existing.expiryDate,
             };
             setSuccessMsg(`🎉 Welcome back, ${googleSession.name}!`);
             setTimeout(() => onLoginSuccess(googleSession), 400);
@@ -233,7 +235,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
             Every student gets an individual journal window across devices.
           </p>
 
-          <div className="mt-5 inline-flex p-1 bg-white/10 rounded-xl backdrop-blur-xs border border-white/10 w-full">
+          <div className="mt-5 inline-flex p-1 bg-white rounded-xl backdrop-blur-xs border border-white/10 w-full">
             <button
               onClick={() => {
                 setActiveTab('student');

@@ -56,7 +56,7 @@ export interface StudentAccount {
   status: 'approved' | 'pending' | 'rejected' | 'disabled';
   registeredAt: number;
   approvedAt?: number;
-  accessExpiry?: number;
+  expiryDate?: number;
   notes?: string;
 }
 
@@ -64,8 +64,8 @@ export interface UserSession {
   email: string;
   role: 'student' | 'admin';
   name: string;
-  plan: string; // "Active Plan - Lifetime License"
-  accessExpiry?: number;
+  plan: string; // "Active Plan - Limited"
+  expiryDate?: number;
 }
 
 export interface TraderProfile {

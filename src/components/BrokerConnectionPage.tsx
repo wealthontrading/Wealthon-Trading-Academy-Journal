@@ -226,7 +226,7 @@ export const BrokerConnectionPage: React.FC<BrokerConnectionPageProps> = ({ user
                       className={`p-3 rounded-xl border text-left transition flex flex-col justify-between space-y-2 cursor-pointer ${
                         isSelected
                           ? 'bg-indigo-50/90 border-indigo-500 ring-2 ring-indigo-500/20 text-indigo-900 shadow-xs'
-                          : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200 text-slate-700'
+                          : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
                       }`}
                     >
                       <div className="flex items-center justify-between">

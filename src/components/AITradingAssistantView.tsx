@@ -389,7 +389,7 @@ Return JSON with this exact schema:
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-2 cursor-pointer ${
                   activeSubTab === 'chat'
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    : 'text-slate-400 hover:text-white hover:bg-white'
                 }`}
               >
                 <Bot className="w-4 h-4" />
@@ -401,7 +401,7 @@ Return JSON with this exact schema:
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-2 cursor-pointer ${
                   activeSubTab === 'journal'
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    : 'text-slate-400 hover:text-white hover:bg-white'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
@@ -413,7 +413,7 @@ Return JSON with this exact schema:
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-2 cursor-pointer ${
                   activeSubTab === 'insights'
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    : 'text-slate-400 hover:text-white hover:bg-white'
                 }`}
               >
                 <Brain className="w-4 h-4" />
@@ -498,7 +498,7 @@ Return JSON with this exact schema:
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-slate-50/40">
+          <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-slate-50">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -605,7 +605,7 @@ Return JSON with this exact schema:
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Ask your AI Trading Coach anything (e.g. 'How can I fix my stop-loss discipline?')..."
-                className="flex-1 px-4 py-3 rounded-2xl border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                className="flex-1 px-4 py-3 rounded-2xl border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
                 disabled={isLoading}
               />
               <button

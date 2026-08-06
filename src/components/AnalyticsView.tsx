@@ -374,7 +374,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex items-center space-x-1.5 bg-slate-100/80 p-1 rounded-2xl border border-slate-200">
+            <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200">
               <button
                 onClick={prevMonth}
                 className="p-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs text-slate-700 transition cursor-pointer active:scale-95"
@@ -401,7 +401,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         </div>
 
         {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-2 text-center text-xs font-black uppercase tracking-wider text-slate-600 py-2.5 bg-slate-100/70 rounded-2xl border border-slate-200/80">
+        <div className="grid grid-cols-7 gap-2 text-center text-xs font-black uppercase tracking-wider text-slate-600 py-2.5 bg-slate-100 rounded-2xl border border-slate-200">
           <span>Sunday</span>
           <span>Monday</span>
           <span>Tuesday</span>
@@ -415,7 +415,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         <div className="grid grid-cols-7 gap-1.5 sm:gap-2 text-xs">
           {calendarData.map((d, idx) => {
             if (d.dayNumber === null) {
-              return <div key={idx} className="min-h-[64px] sm:min-h-[72px] bg-slate-50/40 rounded-2xl border border-slate-100"></div>;
+              return <div key={idx} className="min-h-[64px] sm:min-h-[72px] bg-slate-50 rounded-2xl border border-slate-100"></div>;
             }
 
             const year = currentCalendarDate.getFullYear();
@@ -424,7 +424,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
             const formattedDay = String(d.dayNumber).padStart(2, '0');
             const cellDateStr = `${year}-${formattedMonth}-${formattedDay}`;
 
-            let dayBg = 'bg-slate-50/90 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300';
+            let dayBg = 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300';
             if (d.count > 0) {
               if (d.pnl > 0) dayBg = 'bg-emerald-50/90 border-emerald-300 text-emerald-950 font-bold hover:bg-emerald-100 hover:border-emerald-400 hover:shadow-sm';
               else if (d.pnl < 0) dayBg = 'bg-rose-50/90 border-rose-300 text-rose-950 font-bold hover:bg-rose-100 hover:border-rose-400 hover:shadow-sm';
@@ -728,7 +728,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         {/* Charts Grid: Bar Chart & Pie Chart */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
           {/* Bar Chart: Net P&L by Mode */}
-          <div className="lg:col-span-2 bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3">
+          <div className="lg:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold uppercase text-slate-700 tracking-wider">
                 Net P&L vs Charges Comparison (By Execution Mode)
@@ -752,7 +752,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
           </div>
 
           {/* Pie Chart: Mode Share */}
-          <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200 space-y-3 flex flex-col justify-between">
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 flex flex-col justify-between">
             <div>
               <h4 className="text-xs font-bold uppercase text-slate-700 tracking-wider">
                 Execution Mode Volume Share
@@ -908,7 +908,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
               >
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-white">
+                    <span className="text-xs uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full bg-white backdrop-blur-xs text-white">
                       Order Book Details
                     </span>
                     <span className="text-xs text-white/90 font-medium">
@@ -930,7 +930,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
 
                   <button
                     onClick={() => setSelectedDayOrdersDate(null)}
-                    className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+                    className="p-2 rounded-xl bg-white hover:bg-white text-white transition cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>

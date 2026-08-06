@@ -493,12 +493,12 @@ export const AdminFeedbackAnalytics: React.FC = () => {
                   </div>
 
                   {/* Message Box */}
-                  <div className="p-3 bg-white/90 rounded-xl border border-slate-200/80 text-xs text-slate-800 font-medium leading-relaxed">
+                  <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs text-slate-800 font-medium leading-relaxed">
                     &quot;{item.message}&quot;
                   </div>
 
                   {/* Contact Info & Actions */}
-                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100/80">
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100">
                     <div className="flex items-center space-x-2 text-[11px] text-slate-600">
                       {item.phone && (
                         <a

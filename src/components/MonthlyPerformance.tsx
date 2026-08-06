@@ -298,7 +298,7 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
                 </div>
               )}
 
-              <div className="mt-3 grid grid-cols-2 gap-2 text-xs pt-3 border-t border-slate-200/80">
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs pt-3 border-t border-slate-200">
                 <div>
                   <span className="text-slate-400 font-medium">Gross P&L:</span>
                   <div
@@ -415,7 +415,7 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
                   </div>
                 </div>
 
-                <div className="bg-slate-50 border border-slate-200/80 p-1.5 rounded-xl">
+                <div className="bg-slate-50 border border-slate-200 p-1.5 rounded-xl">
                   <div className="flex items-center justify-center space-x-1 text-[10px] font-bold text-slate-600">
                     <MinusCircle className="w-3 h-3 text-slate-400" />
                     <span>Breakeven</span>
@@ -430,8 +430,8 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
         </div>
 
         {/* Detailed Breakdown Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/80 p-4 rounded-xl border border-slate-200 text-xs">
-          <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+          <div className="p-2.5 bg-white rounded-xl border border-slate-200">
             <span className="text-slate-400 font-semibold block text-[11px]">Total Profit</span>
             <span className="text-emerald-700 font-extrabold text-sm flex items-center space-x-1 mt-0.5">
               <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
@@ -439,7 +439,7 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
             </span>
           </div>
 
-          <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+          <div className="p-2.5 bg-white rounded-xl border border-slate-200">
             <span className="text-slate-400 font-semibold block text-[11px]">Total Loss</span>
             <span className="text-rose-700 font-extrabold text-sm flex items-center space-x-1 mt-0.5">
               <ArrowDownRight className="w-3.5 h-3.5 text-rose-600" />
@@ -447,7 +447,7 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
             </span>
           </div>
 
-          <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+          <div className="p-2.5 bg-white rounded-xl border border-slate-200">
             <span className="text-slate-400 font-semibold block text-[11px]">Best Single Trade</span>
             <span className="text-emerald-700 font-extrabold text-sm flex items-center space-x-1 mt-0.5">
               <Award className="w-3.5 h-3.5 text-amber-500" />
@@ -455,7 +455,7 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
             </span>
           </div>
 
-          <div className="p-2.5 bg-white rounded-xl border border-slate-200/80">
+          <div className="p-2.5 bg-white rounded-xl border border-slate-200">
             <span className="text-slate-400 font-semibold block text-[11px]">Worst Single Trade</span>
             <span className="text-rose-700 font-extrabold text-sm flex items-center space-x-1 mt-0.5">
               <TrendingDown className="w-3.5 h-3.5 text-rose-500" />

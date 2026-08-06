@@ -107,7 +107,7 @@ export const YearlyPerformanceHeatmap: React.FC<YearlyPerformanceHeatmapProps> =
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {monthlyData.map((data) => {
-          let dayBg = 'bg-slate-50/90 border-slate-200 text-slate-700';
+          let dayBg = 'bg-slate-50 border-slate-200 text-slate-700';
           if (data.tradeCount > 0) {
             if (data.netPnL > 0) {
               dayBg = 'bg-emerald-50/90 border-emerald-300 text-emerald-950 font-bold shadow-sm';

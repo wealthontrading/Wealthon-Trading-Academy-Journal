@@ -183,7 +183,7 @@ export const AdminBrokerAnalytics: React.FC<AdminBrokerAnalyticsProps> = ({
               return (
                 <div
                   key={item.name}
-                  className="p-4 bg-slate-50/80 hover:bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2 transition"
+                  className="p-4 bg-slate-50 hover:bg-slate-50 border border-slate-200 rounded-2xl space-y-2 transition"
                 >
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center space-x-2.5">
@@ -276,7 +276,7 @@ export const AdminBrokerAnalytics: React.FC<AdminBrokerAnalyticsProps> = ({
                         : req.brokerName;
 
                     return (
-                      <tr key={req.id} className="hover:bg-slate-50/80 transition">
+                      <tr key={req.id} className="hover:bg-slate-50 transition">
                         <td className="py-2.5 px-3.5">
                           <p className="font-extrabold text-slate-900 text-xs">{req.userEmail}</p>
                           {req.userName && <p className="text-[11px] text-slate-500">{req.userName}</p>}

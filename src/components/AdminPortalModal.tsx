@@ -418,7 +418,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({
                     filteredStudents.map((s) => {
                       const studentTrades = getStoredTrades(s.email);
                       return (
-                        <tr key={s.id} className="hover:bg-slate-50/80 transition">
+                        <tr key={s.id} className="hover:bg-slate-50 transition">
                           <td className="py-3 px-4">
                             <p className="font-extrabold text-slate-900 text-xs">{s.email}</p>
                             <p className="text-[11px] text-slate-500">{s.name || 'Student'}</p>

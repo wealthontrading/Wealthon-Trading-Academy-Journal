@@ -91,7 +91,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Header */}
           <div className="p-5 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="p-2 bg-white/10 rounded-xl">
+              <div className="p-2 bg-white rounded-xl">
                 <Settings className="w-5 h-5 text-indigo-300" />
               </div>
               <div>
@@ -99,7 +99,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <p className="text-xs text-indigo-200">Manage profile, themes, and local backups.</p>
               </div>
             </div>
-            <button onClick={onClose} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer">
+            <button onClick={onClose} className="p-1.5 rounded-lg bg-white hover:bg-white text-white cursor-pointer">
               <X className="w-5 h-5" />
             </button>
           </div>

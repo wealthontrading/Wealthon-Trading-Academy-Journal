@@ -248,11 +248,11 @@ Journal Today, Profit Tomorrow
           {/* Modal Header */}
           <div className="p-5 sm:p-6 bg-gradient-to-br from-blue-700 via-indigo-800 to-slate-900 text-white flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-xs text-blue-200">
+              <div className="p-2.5 bg-white rounded-xl backdrop-blur-xs text-blue-200">
                 <GraduationCap className="w-7 h-7" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black tracking-wider text-blue-200 bg-white/10 px-2 py-0.5 rounded-full border border-white/10">
+                <span className="text-[10px] uppercase font-black tracking-wider text-blue-200 bg-white px-2 py-0.5 rounded-full border border-white/10">
                   WealthOn Mentor Connect
                 </span>
                 <h2 className="text-xl sm:text-2xl font-black mt-0.5">Send Journal to Mentor</h2>
@@ -264,7 +264,7 @@ Journal Today, Profit Tomorrow
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+              className="p-2 rounded-xl bg-white hover:bg-white text-white transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

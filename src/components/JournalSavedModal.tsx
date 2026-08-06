@@ -56,8 +56,8 @@ export const JournalSavedModal: React.FC<JournalSavedModalProps> = ({
         </div>
 
         {/* Data Sync Breakdown */}
-        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-left space-y-2.5">
-          <div className="flex items-center justify-between text-xs border-b border-slate-200/60 pb-2">
+        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left space-y-2.5">
+          <div className="flex items-center justify-between text-xs border-b border-slate-200 pb-2">
             <span className="text-slate-500 font-semibold flex items-center space-x-1.5">
               <Clock className="w-3.5 h-3.5 text-indigo-600" />
               <span>Sync Timestamp</span>
