@@ -176,6 +176,7 @@ export const Header: React.FC<HeaderProps> = ({
               <Settings className="w-5 h-5" />
             </button>
 
+
             <button
               onClick={onOpenAddTrade}
               className="py-2.5 px-4 sm:px-5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow-md shadow-blue-500/20 transition flex items-center space-x-2 cursor-pointer"

@@ -73,7 +73,6 @@ export interface TraderProfile {
   platform: string;
   instituteName?: string;
   isFirstLaunchCompleted: boolean;
-  theme: 'light' | 'dark' | 'emerald' | 'navy';
   capital?: number;
 }
 

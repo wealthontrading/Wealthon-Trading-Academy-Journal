@@ -337,6 +337,7 @@ export default function App() {
     setIsSendToMentorOpen(true);
   };
 
+
   const handleCloseSendToMentor = () => {
     setIsSendToMentorOpen(false);
   };
@@ -492,7 +493,6 @@ export default function App() {
       name: session?.email ? session.email.split('@')[0] : 'Trader',
       platform: 'Zerodha (Kite)',
       isFirstLaunchCompleted: true,
-      theme: 'light',
     };
     saveStoredProfile(freshProfile, activeUserEmail);
     saveStoredTrades([], activeUserEmail);
@@ -869,6 +869,7 @@ export default function App() {
       <PrivacyModal isOpen={isPrivacyOpen} onClose={handleClosePrivacy} />
 
       <DisclaimerModal isOpen={isDisclaimerOpen} onClose={handleCloseDisclaimer} />
+
 
       <CustomerSupportModal
         isOpen={isCustomerSupportOpen}

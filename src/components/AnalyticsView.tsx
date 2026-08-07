@@ -930,7 +930,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
 
                   <button
                     onClick={() => setSelectedDayOrdersDate(null)}
-                    className="p-2 rounded-xl bg-white hover:bg-white text-white transition cursor-pointer"
+                    className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>

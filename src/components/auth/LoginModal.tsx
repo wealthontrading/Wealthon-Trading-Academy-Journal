@@ -235,18 +235,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
             Every student gets an individual journal window across devices.
           </p>
 
-          <div className="mt-5 inline-flex p-1 bg-white rounded-xl backdrop-blur-xs border border-white/10 w-full">
+          <div className="mt-5 flex flex-col sm:flex-row gap-2 w-full">
             <button
               onClick={() => {
                 setActiveTab('student');
                 setErrorMsg('');
                 setSuccessMsg('');
               }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center space-x-1 ${
-                activeTab === 'student' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-300 hover:text-white'
+              className={`flex-1 py-2.5 px-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                activeTab === 'student' ? 'bg-blue-600 text-white shadow-md' : 'bg-white/10 border border-white/20 text-slate-200 hover:bg-white/20 hover:text-white'
               }`}
             >
-              <UserCheck className="w-3.5 h-3.5" />
+              <UserCheck className="w-4 h-4" />
               <span>Student Login</span>
             </button>
 
@@ -256,11 +256,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                 setErrorMsg('');
                 setSuccessMsg('');
               }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center space-x-1 ${
-                activeTab === 'signup' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-300 hover:text-white'
+              className={`flex-1 py-2.5 px-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                activeTab === 'signup' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white/10 border border-white/20 text-slate-200 hover:bg-white/20 hover:text-white'
               }`}
             >
-              <UserPlus className="w-3.5 h-3.5" />
+              <UserPlus className="w-4 h-4" />
               <span>Request Email</span>
             </button>
 
@@ -270,11 +270,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                 setErrorMsg('');
                 setSuccessMsg('');
               }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center space-x-1 ${
-                activeTab === 'admin' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-300 hover:text-white'
+              className={`flex-1 py-2.5 px-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                activeTab === 'admin' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white/10 border border-white/20 text-slate-200 hover:bg-white/20 hover:text-white'
               }`}
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
+              <ShieldCheck className="w-4 h-4" />
               <span>Admin Portal</span>
             </button>
           </div>

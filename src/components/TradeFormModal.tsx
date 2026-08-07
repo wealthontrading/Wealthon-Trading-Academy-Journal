@@ -365,7 +365,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg bg-white hover:bg-white text-white transition cursor-pointer"
+              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

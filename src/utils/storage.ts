@@ -38,7 +38,6 @@ export function getStoredProfile(userEmail?: string): TraderProfile {
       platform: '',
       instituteName: 'WealthOn Trading Academy',
       isFirstLaunchCompleted: false,
-      theme: 'light',
     };
   }
   try {
@@ -53,7 +52,6 @@ export function getStoredProfile(userEmail?: string): TraderProfile {
       platform: '',
       instituteName: 'WealthOn Trading Academy',
       isFirstLaunchCompleted: false,
-      theme: 'light',
     };
   }
 }

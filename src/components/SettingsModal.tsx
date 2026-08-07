@@ -42,7 +42,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [name, setName] = useState(profile.name || '');
   const [platform, setPlatform] = useState(profile.platform || 'Zerodha (Kite)');
   const [instituteName, setInstituteName] = useState(profile.instituteName || 'WealthOn Trading Academy');
-  const [theme, setTheme] = useState(profile.theme || 'light');
   const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
 
   if (!isOpen) return null;
@@ -54,7 +53,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       name: name.trim(),
       platform: platform.trim(),
       instituteName: instituteName.trim() || 'WealthOn Trading Academy',
-      theme,
     });
     onClose();
   };
@@ -96,10 +94,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
               <div>
                 <h2 className="text-lg font-bold">Journal Settings & Data</h2>
-                <p className="text-xs text-indigo-200">Manage profile, themes, and local backups.</p>
+                <p className="text-xs text-indigo-200">Manage profile and local backups.</p>
               </div>
             </div>
-            <button onClick={onClose} className="p-1.5 rounded-lg bg-white hover:bg-white text-white cursor-pointer">
+            <button onClick={onClose} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer">
               <X className="w-5 h-5" />
             </button>
           </div>

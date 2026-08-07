@@ -2,7 +2,8 @@ import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI } from '@google/genai';
+import { WebSocketServer } from 'ws';
+import { GoogleGenAI, Modality, LiveServerMessage } from '@google/genai';
 
 dotenv.config();
 
@@ -136,8 +137,65 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
+  });
+
+  const wss = new WebSocketServer({ server, path: '/live' });
+
+  wss.on("connection", async (clientWs) => {
+    try {
+      const ai = getGenAI();
+      const session = await ai.live.connect({
+        model: "gemini-3.1-flash-live-preview",
+        config: {
+          responseModalities: [Modality.AUDIO, Modality.TEXT],
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
+          },
+          systemInstruction: "You are a WealthOn AI Trading Assistant & Personal Coach for Indian Options trading (Nifty, BankNifty, Sensex). Speak concisely, professionally, and clearly. IMPORTANT: Review the student trading journey in Malayalam language.",
+        },
+        callbacks: {
+          onmessage: (message: LiveServerMessage) => {
+            const parts = message.serverContent?.modelTurn?.parts;
+            if (parts) {
+              for (const p of parts) {
+                if (p.inlineData?.data && clientWs.readyState === 1) {
+                  clientWs.send(JSON.stringify({ audio: p.inlineData.data }));
+                }
+                if (p.text && clientWs.readyState === 1) {
+                  clientWs.send(JSON.stringify({ text: p.text }));
+                }
+              }
+            }
+                        if (message.serverContent?.interrupted && clientWs.readyState === 1)
+              clientWs.send(JSON.stringify({ interrupted: true }));
+          },
+        },
+      });
+
+      clientWs.on("message", (data) => {
+        try {
+          const { audio } = JSON.parse(data.toString());
+          if (audio) {
+            session.sendRealtimeInput({
+              audio: { data: audio, mimeType: "audio/pcm;rate=16000" },
+            });
+          }
+        } catch (e) {
+          console.error("Error processing websocket message:", e);
+        }
+      });
+
+      clientWs.on("close", () => {
+        // session.close() is not available or handled via garbage collection depending on SDK implementation
+        // Close if available in API
+      });
+
+    } catch (error) {
+      console.error("Failed to start Live API session:", error);
+      clientWs.close();
+    }
   });
 }
 

@@ -26,7 +26,7 @@ export const DisclaimerModal: React.FC<DisclaimerModalProps> = ({ isOpen, onClos
               </div>
               <h2 className="text-lg font-bold">Important Disclaimer</h2>
             </div>
-            <button onClick={onClose} className="p-1.5 rounded-lg bg-white hover:bg-white text-white cursor-pointer">
+            <button onClick={onClose} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer">
               <X className="w-5 h-5" />
             </button>
           </div>
