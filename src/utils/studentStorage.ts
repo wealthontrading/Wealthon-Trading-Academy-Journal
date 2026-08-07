@@ -185,6 +185,12 @@ export function adminDeleteStudent(email: string): StudentAccount[] {
   const updated = students.filter((s) => s.email.toLowerCase() !== email.trim().toLowerCase());
   saveStoredStudents(updated);
   deleteStudentFromFirestore(email);
+  // Also clean local data immediately
+  localStorage.removeItem(`trading_journal_trades_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`);
+  localStorage.removeItem(`trading_journal_notes_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`);
+  localStorage.removeItem(`trading_journal_goals_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`);
+  localStorage.removeItem(`trading_journal_rules_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`);
+  localStorage.removeItem(`trading_journal_broker_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`);
   return updated;
 }
 

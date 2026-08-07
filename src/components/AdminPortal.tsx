@@ -67,6 +67,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [students, setStudents] = useState<StudentAccount[]>(() => getStoredStudents());
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending' | 'disabled' | 'rejected' | 'expiring' | 'expired'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const studentsPerPage = 10;
 
   useEffect(() => {
     const unsub = subscribeStudentsFromFirestore((fsStudents) => {
@@ -81,6 +83,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
   const [newPassword, setNewPassword] = useState('student123');
+
+  // Delete Confirmation
+  const [deleteCandidate, setDeleteCandidate] = useState<string | null>(null);
 
   // Bulk Add Student
   const [showBulkModal, setShowBulkModal] = useState(false);
@@ -238,13 +243,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     refreshStudents();
   };
 
-  const handleDeleteStudent = (email: string) => {
-    if (confirm(`Are you sure you want to permanently delete student ${email}? If deleted, they will be able to request access again in the future.`)) {
-      adminDeleteStudent(email);
-      setBannerMsg({ type: 'success', text: `Deleted student record for ${email}!` });
-      refreshStudents();
-    }
+  const confirmDeleteStudent = (email: string) => {
+    adminDeleteStudent(email);
+    setBannerMsg({ type: 'success', text: `Deleted student record and all associated data for ${email}!` });
+    setDeleteCandidate(null);
+    refreshStudents();
   };
+
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, statusFilter]);
 
   const filteredStudents = students.filter((s) => {
     const matchesSearch =
@@ -267,6 +273,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     return matchesSearch && matchesFilter;
   });
 
+  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+  const paginatedStudents = filteredStudents.slice((currentPage - 1) * studentsPerPage, currentPage * studentsPerPage);
+  
   const totalStudents = students.length;
   const approvedStudents = students.filter((s) => s.status === 'approved').length;
   const pendingStudents = students.filter((s) => s.status === 'pending').length;
@@ -348,15 +357,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
 
           <div className="grid grid-cols-3 gap-3 w-full md:w-auto shrink-0 font-mono">
-            <div className="p-3 bg-white backdrop-blur-md rounded-2xl border border-white/10 text-center">
+            <div className="p-3 bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-700 text-center">
               <span className="text-[10px] uppercase text-blue-200 font-bold block">Registered</span>
               <span className="text-2xl font-black text-white">{totalStudents}</span>
             </div>
-            <div className="p-3 bg-white backdrop-blur-md rounded-2xl border border-white/10 text-center">
+            <div className="p-3 bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-700 text-center">
               <span className="text-[10px] uppercase text-blue-200 font-bold block">Approved</span>
               <span className="text-2xl font-black text-emerald-400">{approvedStudents}</span>
             </div>
-            <div className="p-3 bg-white backdrop-blur-md rounded-2xl border border-white/10 text-center">
+            <div className="p-3 bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-700 text-center">
               <span className="text-[10px] uppercase text-blue-200 font-bold block">Pending</span>
               <span className="text-2xl font-black text-amber-300">{pendingStudents}</span>
             </div>
@@ -836,14 +845,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs">
-                  {filteredStudents.length === 0 ? (
+                  {paginatedStudents.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="py-10 text-center text-slate-400">
                         No student accounts found matching your query.
                       </td>
                     </tr>
                   ) : (
-                    filteredStudents.map((s) => {
+                    paginatedStudents.map((s) => {
                       const studentTrades = getStoredTrades(s.email);
                       return (
                         <tr key={s.id} className="hover:bg-slate-50 transition">
@@ -1041,7 +1050,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               </button>
 
                               <button
-                                onClick={() => handleDeleteStudent(s.email)}
+                                onClick={() => setDeleteCandidate(s.email)}
                                 className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
                                 title="Ban/Reject student record"
                               >
@@ -1245,6 +1254,42 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
         )}
       </main>
+
+      {/* Delete Confirmation Modal */}
+      {deleteCandidate && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl shadow-xl w-full max-w-sm overflow-hidden"
+          >
+            <div className="p-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-black text-slate-900">Delete Student?</h3>
+              <p className="text-sm text-slate-600">
+                Are you sure you want to permanently delete <strong>{deleteCandidate}</strong>? 
+                This will erase their profile, journal trades, notes, and feedback.
+              </p>
+              <div className="flex items-center gap-3 pt-4">
+                <button
+                  onClick={() => setDeleteCandidate(null)}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition cursor-pointer"
+                >
+                  No, Cancel
+                </button>
+                <button
+                  onClick={() => confirmDeleteStudent(deleteCandidate)}
+                  className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition cursor-pointer"
+                >
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
