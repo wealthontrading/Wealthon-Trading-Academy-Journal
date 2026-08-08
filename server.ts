@@ -43,7 +43,7 @@ app.post('/api/chat', async (req, res) => {
       return;
     }
 
-    const requestedModel = model || 'gemini-3.6-flash';
+    const requestedModel = model || 'gemini-2.0-flash';
 
     // Map conversation history to contents format
     const contents = messages.map((m: { role: string; content: string }) => ({
@@ -57,7 +57,7 @@ app.post('/api/chat', async (req, res) => {
     let success = false;
 
     // List of models to attempt sequentially according to google genai guidelines
-    const candidateModels = Array.from(new Set([requestedModel, 'gemini-3.6-flash', 'gemini-3.1-pro-preview']));
+    const candidateModels = Array.from(new Set([requestedModel, 'gemini-2.0-flash']));
 
     if (process.env.GEMINI_API_KEY) {
       const ai = getGenAI();

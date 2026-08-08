@@ -6,8 +6,8 @@ import { Logo } from './Logo';
 
 interface HeaderProps {
   profile: TraderProfile;
-  activeTab: 'dashboard' | 'history' | 'strategyBuilder' | 'analytics' | 'journal' | 'brokerConnection' | 'aiAssistant';
-  setActiveTab: (tab: 'dashboard' | 'history' | 'strategyBuilder' | 'analytics' | 'journal' | 'brokerConnection' | 'aiAssistant') => void;
+  activeTab: 'dashboard' | 'history' | 'strategyBuilder' | 'analytics' | 'journal' | 'brokerConnection' | 'aiAssistant' | 'feedback';
+  setActiveTab: (tab: 'dashboard' | 'history' | 'strategyBuilder' | 'analytics' | 'journal' | 'brokerConnection' | 'aiAssistant' | 'feedback') => void;
   onOpenAddTrade: () => void;
   onOpenSettings: () => void;
   onOpenCustomerSupport?: () => void;

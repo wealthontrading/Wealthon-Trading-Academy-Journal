@@ -40,30 +40,7 @@ export function subscribeStudentsFromFirestore(onUpdate: (students: StudentAccou
           }
         });
 
-        // Get local students
-        const localData = localStorage.getItem('trading_journal_students_list');
-        let localStudents: StudentAccount[] = [];
-        if (localData) {
-          try {
-            localStudents = JSON.parse(localData);
-          } catch {
-            localStudents = [];
-          }
-        }
-
-        const mergedMap = new Map<string, StudentAccount>();
-        localStudents.forEach((s) => {
-          if (s && s.email) {
-            mergedMap.set(s.email.trim().toLowerCase(), s);
-          }
-        });
-
-        // Firestore updates take priority
-        fsStudentsMap.forEach((s, emailKey) => {
-          mergedMap.set(emailKey, s);
-        });
-
-        const mergedList = Array.from(mergedMap.values());
+        const mergedList = Array.from(fsStudentsMap.values());
         localStorage.setItem('trading_journal_students_list', JSON.stringify(mergedList));
         onUpdate(mergedList);
       },
@@ -193,22 +170,7 @@ export function subscribeTradesFromFirestore(
           }
         });
 
-        const localTrades = getLocalTrades(userEmail);
-        const mergedMap = new Map<string, Trade>();
-
-        // 1. Local trades first
-        localTrades.forEach((t) => {
-          if (t && t.id) {
-            mergedMap.set(t.id, t);
-          }
-        });
-
-        // 2. Firestore trades overlay
-        fsTradesMap.forEach((t, id) => {
-          mergedMap.set(id, t);
-        });
-
-        const mergedList = Array.from(mergedMap.values());
+        const mergedList = Array.from(fsTradesMap.values());
         mergedList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
         setLocalTrades(mergedList, userEmail);

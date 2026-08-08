@@ -53,6 +53,7 @@ import { TradeDetailsModal } from './components/TradeDetailsModal';
 import { TradeHistory } from './components/TradeHistory';
 import { AnalyticsView } from './components/AnalyticsView';
 import { JournalNotesView } from './components/JournalNotesView';
+import { FeedbackView } from './components/FeedbackView';
 import { SettingsModal } from './components/SettingsModal';
 import { PrivacyModal } from './components/PrivacyModal';
 import { DisclaimerModal } from './components/DisclaimerModal';
@@ -65,7 +66,7 @@ import { JournalSavedModal } from './components/JournalSavedModal';
 import { GoalToastNotification, ToastMessage, getRandomReinforcementQuote } from './components/GoalToastNotification';
 import { ExecutionModePerformanceTable } from './components/ExecutionModePerformanceTable';
 import { MonthlyPerformance } from './components/MonthlyPerformance';
-import { Eye, ShieldCheck, ArrowLeft, Bot, Sparkles, ArrowRight, Clock } from 'lucide-react';
+import { Eye, ShieldCheck, ArrowLeft, Bot, Sparkles, ArrowRight, Clock , MessageSquare } from 'lucide-react';
 
 import { RenewalPage } from './components/RenewalPage';
 
@@ -193,7 +194,7 @@ export default function App() {
   }, [session]);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'history' | 'strategyBuilder' | 'analytics' | 'journal' | 'brokerConnection' | 'aiAssistant'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'history' | 'strategyBuilder' | 'analytics' | 'journal' | 'brokerConnection' | 'aiAssistant' | 'feedback'>('dashboard');
 
   // Modals
   const [isAddTradeOpen, setIsAddTradeOpen] = useState(false);
@@ -275,7 +276,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const handleTabChange = (tab: 'dashboard' | 'history' | 'strategyBuilder' | 'analytics' | 'journal' | 'brokerConnection' | 'aiAssistant') => {
+  const handleTabChange = (tab: 'dashboard' | 'history' | 'strategyBuilder' | 'analytics' | 'journal' | 'brokerConnection' | 'aiAssistant' | 'feedback') => {
     if (tab !== activeTab) {
       setActiveTab(tab);
       window.location.hash = `#${tab}`;
@@ -800,6 +801,9 @@ export default function App() {
                     : null
                 }
               />
+            )}
+            {activeTab === 'feedback' && (
+              <FeedbackView profile={profile} userSession={session} />
             )}
 
             {activeTab === 'aiAssistant' && (

@@ -135,7 +135,7 @@ Trader Context:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: apiMessages,
-            model: 'gemini-3.6-flash',
+            model: 'gemini-2.0-flash',
           }),
         });
 
@@ -297,7 +297,7 @@ Return JSON with this exact schema:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [{ role: 'user', content: promptText }],
-          model: 'gemini-3.6-flash',
+          model: 'gemini-2.0-flash',
           systemInstruction: 'You are an AI Trading Journal Generator. Respond with structured text or valid JSON.',
         }),
       });

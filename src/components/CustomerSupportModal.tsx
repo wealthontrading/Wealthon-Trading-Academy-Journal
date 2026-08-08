@@ -20,7 +20,6 @@ import {
 import ReactMarkdown from 'react-markdown';
 
 import { Logo } from './Logo';
-import { saveFeedbackToFirestore } from '../utils/firebaseSync';
 import { FeedbackItem, TraderProfile, UserSession } from '../types';
 
 interface CustomerSupportModalProps {
@@ -28,7 +27,7 @@ interface CustomerSupportModalProps {
   onClose: () => void;
   profile?: TraderProfile;
   userSession?: UserSession | null;
-  initialTab?: 'support' | 'feedback' | 'renew';
+  initialTab?: 'support' | 'renew';
 }
 
 export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
@@ -38,7 +37,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
   userSession,
   initialTab = 'support'
 }) => {
-  const [activeTab, setActiveTab] = useState<'support' | 'feedback' | 'renew'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'support' | 'renew'>(initialTab);
 
   // Chat Support State
   const [showWhatsApp, setShowWhatsApp] = useState(false);
@@ -48,47 +47,10 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
 
-  // Feedback form state
-  const [rating, setRating] = useState<number>(5);
-  const [hoverRating, setHoverRating] = useState<number>(0);
-  const [category, setCategory] = useState<FeedbackItem['category']>('Customer Support');
-  const [userName, setUserName] = useState<string>('');
-  const [userEmail, setUserEmail] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const populateUserData = () => {
-    let name = profile?.name || userSession?.name || '';
-    let email = userSession?.email || '';
-    let ph = '';
-
-    try {
-      const sessData = localStorage.getItem('trading_journal_user_session');
-      if (sessData) {
-        const sess = JSON.parse(sessData);
-        if (!email && sess.email) email = sess.email;
-        if (!name && sess.name) name = sess.name;
-        if (!ph && sess.phone) ph = sess.phone;
-      }
-      if (!email) {
-        const activeEmail = localStorage.getItem('trading_journal_active_email');
-        if (activeEmail) email = activeEmail;
-      }
-    } catch {
-      // no-op
-    }
-
-    if (email) setUserEmail(email);
-    if (name) setUserName(name);
-    if (ph) setPhone(ph);
-  };
-
+  
   useEffect(() => {
     if (isOpen) {
-      populateUserData();
+      
       if (initialTab) {
         setActiveTab(initialTab);
       }
@@ -106,14 +68,17 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
     }
     return () => clearTimeout(timer);
   }, [isOpen, activeTab, showWhatsApp]);
+  const quickQuestions = [
+    "How to log a trade?",
+    "What is the pricing?",
+    "Connect to human agent"
+  ];
 
-  const handleChatSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim() || isChatLoading) return;
-
-    const userText = chatInput.trim();
+  const sendChatMessage = async (text: string) => {
+    if (!text.trim() || isChatLoading) return;
+    
     setChatInput('');
-    setChatMessages((prev) => [...prev, { role: 'user', content: userText }]);
+    setChatMessages((prev) => [...prev, { role: 'user', content: text }]);
     setIsChatLoading(true);
 
     try {
@@ -123,8 +88,8 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...chatMessages, { role: 'user', content: userText }],
-          model: 'gemini-3.6-flash',
+          messages: [...chatMessages, { role: 'user', content: text }],
+          model: 'gemini-2.0-flash',
           systemInstruction,
         }),
       });
@@ -132,7 +97,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
       const data = await res.json();
       const aiReply = data.text || 'Sorry, I am having trouble connecting to the server.';
 
-      if (aiReply.includes('[CONNECT_SUPPORT]') || userText.toLowerCase().includes('support') || userText.toLowerCase().includes('human')) {
+      if (aiReply.includes('[CONNECT_SUPPORT]') || text.toLowerCase().includes('support') || text.toLowerCase().includes('human') || text.toLowerCase().includes('agent')) {
         setShowWhatsApp(true);
         setChatMessages((prev) => [...prev, { role: 'model', content: "I'm connecting you to our WhatsApp Customer Support team now." }]);
       } else {
@@ -140,7 +105,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
       }
     } catch (err) {
       console.error('Chat error:', err);
-      if (userText.toLowerCase().includes('support') || userText.toLowerCase().includes('human')) {
+      if (text.toLowerCase().includes('support') || text.toLowerCase().includes('human') || text.toLowerCase().includes('agent')) {
          setShowWhatsApp(true);
       } else {
          setChatMessages((prev) => [...prev, { role: 'model', content: "An error occurred while connecting. Please try again or ask for human support." }]);
@@ -150,48 +115,17 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
     }
   };
 
+  const handleChatSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (chatInput.trim()) {
+      await sendChatMessage(chatInput.trim());
+    }
+  };
+
+
   const phoneNum = '+91 8547742160';
   const rawPhone = '918547742160';
   const email = 'wealthonprojects@gmail.com';
-
-  const handleSubmitFeedback = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg(null);
-
-    if (!userEmail.trim()) {
-      setErrorMsg('Please enter your email address.');
-      return;
-    }
-
-    if (!message.trim()) {
-      setErrorMsg('Please write a short feedback or review message.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const newFeedback: FeedbackItem = {
-        id: `fb_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        userEmail: userEmail.trim().toLowerCase(),
-        userName: userName.trim() || 'Student',
-        phone: phone.trim(),
-        rating,
-        category,
-        message: message.trim(),
-        status: 'New',
-        submittedAt: Date.now()
-      };
-      await saveFeedbackToFirestore(newFeedback);
-      setSubmitSuccess(true);
-      setMessage('');
-      setPhone('');
-    } catch (err) {
-      console.error('Error submitting feedback:', err);
-      setErrorMsg('Failed to submit feedback. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const getRatingLabel = (stars: number) => {
     switch (stars) {
@@ -252,18 +186,6 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('feedback')}
-              className={`pb-3 px-4 text-xs font-bold transition border-b-2 flex items-center space-x-1.5 cursor-pointer ${
-                activeTab === 'feedback'
-                  ? 'border-emerald-600 text-emerald-700 font-extrabold'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>Feedback</span>
-            </button>
-            <button
-              type="button"
               onClick={() => setActiveTab('renew')}
               className={`pb-3 px-4 text-xs font-bold transition border-b-2 flex items-center space-x-1.5 cursor-pointer ${
                 activeTab === 'renew'
@@ -318,6 +240,19 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
                       )}
                     </div>
                     
+                    <div className="px-4 pb-2 pt-1 overflow-x-auto flex space-x-2 no-scrollbar shrink-0">
+                      {quickQuestions.map((q, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => sendChatMessage(q)}
+                          disabled={isChatLoading}
+                          className="px-3 py-1.5 bg-blue-50 text-blue-700 text-[11px] font-bold rounded-full border border-blue-200 hover:bg-blue-100 transition whitespace-nowrap cursor-pointer disabled:opacity-50"
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
                     <form onSubmit={handleChatSubmit} className="p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
                       <input
                         type="text"
@@ -368,41 +303,6 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
                   </div>
                 )}
 
-                {/* DIRECT REVIEW & FEEDBACK CALLOUT CARD INSIDE SUPPORT PAGE */}
-                <div className="p-5 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-slate-50 rounded-2xl border border-amber-300/80 space-y-3.5 shadow-xs">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-3 bg-amber-500 text-slate-950 rounded-xl shadow-md shrink-0">
-                        <Star className="w-5 h-5 fill-slate-950" />
-                      </div>
-                      <div>
-                        <span className="text-[11px] font-black uppercase tracking-wider text-amber-900 block">
-                          Student Feedback & Review
-                        </span>
-                        <h4 className="text-sm font-extrabold text-slate-900 mt-0.5">
-                          How is your experience with WealthOn?
-                        </h4>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    We value your review! Click the button below to rate your experience and submit your feedback. Your name and email will be pre-filled automatically.
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      populateUserData();
-                      setActiveTab('feedback');
-                      setSubmitSuccess(false);
-                    }}
-                    className="w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs sm:text-sm rounded-xl transition flex items-center justify-center space-x-2 shadow-md shadow-amber-500/20 cursor-pointer"
-                  >
-                    <Star className="w-4 h-4 fill-slate-950" />
-                    <span>⭐ Write a Review & Submit Feedback</span>
-                  </button>
-                </div>
 
                 {/* Support Info Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
