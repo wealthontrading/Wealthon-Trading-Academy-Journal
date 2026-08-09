@@ -185,11 +185,13 @@ export interface BrokerRequest {
 
 export interface FeedbackItem {
   id: string;
+  type: 'Feedback' | 'Complaint' | 'Idea';
+  ticketNumber?: string;
   userEmail: string;
   userName?: string;
   phone?: string;
-  rating: number; // 1-5 stars
-  category: 'Customer Support' | 'Platform Features' | 'Trading Journal' | 'Broker API' | 'General Experience';
+  rating?: number; // 1-5 stars, optional for complaints
+  category: 'Customer Support' | 'Platform Features' | 'Trading Journal' | 'Broker API' | 'General Experience' | 'Technical Issue' | 'Billing' | 'Other';
   message: string;
   status: 'New' | 'Reviewed' | 'Resolved';
   submittedAt: number;

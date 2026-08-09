@@ -40,12 +40,17 @@ import {
   deleteFeedbackFromFirestore
 } from '../utils/firebaseSync';
 
-export const AdminFeedbackAnalytics: React.FC = () => {
+interface AdminFeedbackAnalyticsProps {
+  defaultTypeFilter?: string;
+}
+
+export const AdminFeedbackAnalytics: React.FC<AdminFeedbackAnalyticsProps> = ({ defaultTypeFilter = 'all' }) => {
   const [feedbackList, setFeedbackList] = useState<FeedbackItem[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'New' | 'Reviewed' | 'Resolved'>('all');
   const [ratingFilter, setRatingFilter] = useState<number | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>(defaultTypeFilter);
   const [bannerNotice, setBannerNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -67,14 +72,14 @@ export const AdminFeedbackAnalytics: React.FC = () => {
     const matchesSearch =
       item.userEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.userName && item.userName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      item.message.toLowerCase().includes(searchQuery.toLowerCase());
-
+      item.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.ticketNumber || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
     const matchesRating = ratingFilter === 'all' || item.rating === ratingFilter;
     const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
-
-    return matchesSearch && matchesStatus && matchesRating && matchesCategory;
-  });
+    const matchesType = typeFilter === 'all' || (item.type || 'Feedback') === typeFilter;
+    return matchesSearch && matchesStatus && matchesRating && matchesCategory && matchesType;
+  }).sort((a, b) => b.submittedAt - a.submittedAt);
 
   // Calculate Metrics
   const totalSubmissions = feedbackList.length;
@@ -82,12 +87,13 @@ export const AdminFeedbackAnalytics: React.FC = () => {
   const reviewedCount = feedbackList.filter((f) => f.status === 'Reviewed').length;
   const resolvedCount = feedbackList.filter((f) => f.status === 'Resolved').length;
 
+  const feedbackOnly = feedbackList.filter(f => f.type === 'Feedback' || f.rating);
   const avgRating =
-    totalSubmissions > 0
-      ? (feedbackList.reduce((acc, curr) => acc + curr.rating, 0) / totalSubmissions).toFixed(1)
+    feedbackOnly.length > 0
+      ? (feedbackOnly.reduce((acc, curr) => acc + (curr.rating || 0), 0) / feedbackOnly.length).toFixed(1)
       : '0.0';
 
-  const positiveSubmissions = feedbackList.filter((f) => f.rating >= 4).length;
+  const positiveSubmissions = feedbackList.filter((f) => f.rating && f.rating >= 4).length;
   const satisfactionRate =
     totalSubmissions > 0 ? Math.round((positiveSubmissions / totalSubmissions) * 100) : 0;
 
@@ -379,7 +385,7 @@ export const AdminFeedbackAnalytics: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="px-3 py-1.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white focus:ring-2 focus:ring-amber-500 outline-none"
+              className="px-3 py-1.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-slate-50 focus:ring-2 focus:ring-amber-500 outline-none"
             >
               <option value="all">Status: All ({totalSubmissions})</option>
               <option value="New">Status: New ({newCount})</option>
@@ -391,7 +397,7 @@ export const AdminFeedbackAnalytics: React.FC = () => {
             <select
               value={ratingFilter}
               onChange={(e) => setRatingFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-              className="px-3 py-1.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white focus:ring-2 focus:ring-amber-500 outline-none"
+              className="px-3 py-1.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-slate-50 focus:ring-2 focus:ring-amber-500 outline-none"
             >
               <option value="all">Stars: All Ratings</option>
               <option value="5">5 Stars ⭐⭐⭐⭐⭐</option>
@@ -405,7 +411,7 @@ export const AdminFeedbackAnalytics: React.FC = () => {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-1.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-white focus:ring-2 focus:ring-amber-500 outline-none"
+              className="px-3 py-1.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-slate-50 focus:ring-2 focus:ring-amber-500 outline-none"
             >
               <option value="all">Category: All</option>
               <option value="Customer Support">Customer Support</option>
@@ -413,6 +419,17 @@ export const AdminFeedbackAnalytics: React.FC = () => {
               <option value="Trading Journal">Trading Journal</option>
               <option value="Broker API">Broker API</option>
               <option value="General Experience">General Experience</option>
+            </select>
+            {/* Type Filter */}
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-xl border border-slate-300 font-bold text-slate-700 bg-slate-50 focus:ring-2 focus:ring-amber-500 outline-none"
+            >
+              <option value="all">Type: All</option>
+              <option value="Feedback">Feedback</option>
+              <option value="Complaint">Complaint</option>
+              <option value="Idea">Idea</option>
             </select>
           </div>
         </div>
@@ -462,17 +479,33 @@ export const AdminFeedbackAnalytics: React.FC = () => {
                       <span className="text-[10px] text-slate-400 block font-medium">{formattedDate}</span>
                     </div>
 
-                    {/* Star Rating Badge */}
-                    <div className="px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-full flex items-center space-x-1 shrink-0">
-                      <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                      <span className="font-extrabold text-amber-900 text-xs">{item.rating}.0</span>
-                    </div>
+                    {/* Badge */}
+                    {item.type === 'Complaint' && item.ticketNumber ? (
+                      <div className="px-2.5 py-1 bg-rose-50 border border-rose-200 rounded-lg flex items-center space-x-1 shrink-0">
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+                        <span className="font-extrabold text-rose-900 text-[10px]">{item.ticketNumber}</span>
+                      </div>
+                    ) : item.type === 'Idea' ? (
+                      <div className="px-2.5 py-1 bg-purple-50 border border-purple-200 rounded-lg flex items-center space-x-1 shrink-0">
+                        <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                        <span className="font-extrabold text-purple-900 text-[10px]">Idea</span>
+                      </div>
+                    ) : item.rating ? (
+                      <div className="px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-full flex items-center space-x-1 shrink-0">
+                        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                        <span className="font-extrabold text-amber-900 text-xs">{item.rating}.0</span>
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Category & Status Badges */}
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="px-2.5 py-0.5 bg-slate-100 text-slate-800 text-[10px] font-extrabold rounded-md border border-slate-200">
-                      {item.category}
+                    <span className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-md border ${
+                      item.type === 'Complaint' ? 'bg-rose-100 text-rose-800 border-rose-200' :
+                      item.type === 'Idea' ? 'bg-purple-100 text-purple-800 border-purple-200' :
+                      'bg-slate-100 text-slate-800 border-slate-200'
+                    }`}>
+                      {item.type === 'Complaint' ? 'Complaint' : item.type === 'Idea' ? 'Idea' : 'Feedback'}: {item.category}
                     </span>
 
                     {item.status === 'New' && (

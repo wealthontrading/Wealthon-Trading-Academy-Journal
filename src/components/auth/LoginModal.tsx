@@ -350,6 +350,19 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                   </button>
                 </div>
               </form>
+
+              <div className="pt-2 border-t border-slate-100 mt-4 text-center">
+                <p className="text-xs text-slate-500 mb-2 font-medium">Want to join WealthOn Trading Academy?</p>
+                <a
+                  href="https://wa.me/918547742160?text=Hi%2C%20I%20would%20like%20to%20buy%20a%20plan%20for%20WealthOn%20Trading%20Academy."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer border border-emerald-200"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Buy a Plan via WhatsApp</span>
+                </a>
+              </div>
             </div>
           )}
 
@@ -402,6 +415,19 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                   </button>
                 </div>
               </form>
+
+              <div className="pt-2 border-t border-slate-100 mt-4 text-center">
+                <p className="text-xs text-slate-500 mb-2 font-medium">Want to join WealthOn Trading Academy?</p>
+                <a
+                  href="https://wa.me/918547742160?text=Hi%2C%20I%20would%20like%20to%20buy%20a%20plan%20for%20WealthOn%20Trading%20Academy."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer border border-emerald-200"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Buy a Plan via WhatsApp</span>
+                </a>
+              </div>
             </div>
           )}
 

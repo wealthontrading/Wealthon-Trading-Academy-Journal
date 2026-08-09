@@ -81,7 +81,7 @@ export function adminAddAndApproveStudent(
 
   const students = getStoredStudents();
   const existingIdx = students.findIndex((s) => s.email.toLowerCase() === cleanEmail);
-  const oneYearExpiry = Date.now() + 365 * 24 * 60 * 60 * 1000;
+  const threeMonthsExpiry = Date.now() + 90 * 24 * 60 * 60 * 1000;
 
   if (existingIdx >= 0) {
     const updated = [...students];
@@ -89,7 +89,7 @@ export function adminAddAndApproveStudent(
       ...updated[existingIdx],
       status: 'approved',
       approvedAt: Date.now(),
-      expiryDate: updated[existingIdx].expiryDate || oneYearExpiry,
+      expiryDate: updated[existingIdx].expiryDate || threeMonthsExpiry,
       name: name.trim() || updated[existingIdx].name,
       password: password ? password : updated[existingIdx].password,
     };
@@ -106,7 +106,7 @@ export function adminAddAndApproveStudent(
     status: 'approved',
     registeredAt: Date.now(),
     approvedAt: Date.now(),
-    expiryDate: oneYearExpiry,
+    expiryDate: threeMonthsExpiry,
   };
 
   const updated = [newStudent, ...students];
@@ -126,12 +126,12 @@ export function adminUpdateStudentStatus(
   const updated = students.map((s) => {
     if (s.email.toLowerCase() === email.trim().toLowerCase()) {
       const now = Date.now();
-      const oneYearExpiry = now + 365 * 24 * 60 * 60 * 1000;
+      const threeMonthsExpiry = now + 90 * 24 * 60 * 60 * 1000;
       
       let newExpiryDate = s.expiryDate;
       if (status === 'approved') {
         if (!s.expiryDate || renew) {
-          newExpiryDate = oneYearExpiry;
+          newExpiryDate = threeMonthsExpiry;
         }
       }
 

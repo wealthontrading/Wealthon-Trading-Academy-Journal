@@ -61,7 +61,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onSeedSampleTrades,
 }) => {
   const [activeGuideTab, setActiveGuideTab] = useState<'addTrade' | 'calculator' | 'analytics' | 'journal' | 'mentor'>('addTrade');
-  const [activeAdminPage, setActiveAdminPage] = useState<'all' | 'students' | 'feedback' | 'broker' | 'maintenance' | 'manual'>('all');
+  const [activeAdminPage, setActiveAdminPage] = useState<'all' | 'students' | 'feedback' | 'ideas' | 'broker' | 'maintenance' | 'manual'>('all');
 
   // Live Students State
   const [students, setStudents] = useState<StudentAccount[]>(() => getStoredStudents());
@@ -422,6 +422,18 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             >
               <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
               <span>User Feedback & Analytics</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveAdminPage('ideas')}
+              className={`px-3.5 py-2 font-bold rounded-xl transition cursor-pointer flex items-center space-x-1.5 ${
+                activeAdminPage === 'ideas'
+                  ? 'bg-purple-600 text-white font-black shadow-xs'
+                  : 'bg-purple-50 text-purple-900 border border-purple-200 hover:bg-purple-100'
+              }`}
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Ideas & Improvements</span>
             </button>
 
             <button
@@ -1165,6 +1177,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         {/* SECTION 2: USER FEEDBACK & SATISFACTION ANALYTICS */}
         {(activeAdminPage === 'all' || activeAdminPage === 'feedback') && (
           <AdminFeedbackAnalytics />
+        )}
+        
+        {/* SECTION 2.5: IDEAS & IMPROVEMENTS */}
+        {activeAdminPage === 'ideas' && (
+          <AdminFeedbackAnalytics defaultTypeFilter="Idea" />
         )}
 
         {/* SECTION 3: BROKER DEMAND ANALYTICS & MARKET SURVEY */}
