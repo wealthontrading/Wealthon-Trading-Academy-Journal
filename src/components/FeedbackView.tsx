@@ -192,7 +192,7 @@ export const FeedbackView: React.FC<FeedbackViewProps> = ({ profile, userSession
                         <Star
                           className={`w-10 h-10 transition-colors duration-200 ${
                             star <= (hoverRating || rating)
-                              ? 'fill-amber-400 text-amber-400 drop-'
+                              ? 'fill-amber-400 text-amber-400 drop-shadow-sm'
                               : 'fill-slate-100 text-slate-200'
                           }`}
                         />

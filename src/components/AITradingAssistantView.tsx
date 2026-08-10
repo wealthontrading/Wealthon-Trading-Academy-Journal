@@ -389,7 +389,7 @@ Return JSON with this exact schema:
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-2 cursor-pointer ${
                   activeSubTab === 'chat'
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 <Bot className="w-4 h-4" />
@@ -401,7 +401,7 @@ Return JSON with this exact schema:
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-2 cursor-pointer ${
                   activeSubTab === 'journal'
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
@@ -413,7 +413,7 @@ Return JSON with this exact schema:
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center space-x-2 cursor-pointer ${
                   activeSubTab === 'insights'
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 <Brain className="w-4 h-4" />

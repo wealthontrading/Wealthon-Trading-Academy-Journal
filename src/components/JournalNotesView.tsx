@@ -534,7 +534,7 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
             <CheckSquare className="w-4 h-4" />
             <span>2. My Rules</span>
             {rules.length > 0 && (
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${activeSubTab === 'rules' ? 'bg-white text-white' : 'bg-slate-300 text-slate-800'}`}>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${activeSubTab === 'rules' ? 'bg-white text-indigo-700' : 'bg-slate-300 text-slate-800'}`}>
                 {activeRulesCount}
               </span>
             )}
@@ -551,7 +551,7 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
             <Target className="w-4 h-4" />
             <span>3. My Goals</span>
             {goals.length > 0 && (
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${activeSubTab === 'goals' ? 'bg-white text-white' : 'bg-slate-300 text-slate-800'}`}>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${activeSubTab === 'goals' ? 'bg-white text-emerald-700' : 'bg-slate-300 text-slate-800'}`}>
                 {achievedGoalsCount}/{goals.length}
               </span>
             )}

@@ -908,7 +908,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
               >
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full bg-white backdrop-blur-xs text-white">
+                    <span className="text-xs uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-white">
                       Order Book Details
                     </span>
                     <span className="text-xs text-white/90 font-medium">

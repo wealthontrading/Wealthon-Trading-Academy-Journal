@@ -236,7 +236,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {item.badge && (
                     <span
                       className={`text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase tracking-wider transition-colors ${
-                        isActive ? 'bg-white text-white' : 'bg-indigo-600 text-white'
+                        isActive ? 'bg-white text-indigo-700' : 'bg-indigo-600 text-white'
                       }`}
                     >
                       {item.badge}
