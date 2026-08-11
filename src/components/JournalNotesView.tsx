@@ -35,7 +35,6 @@ import {
   ShieldCheck,
   Award as Trophy,
 } from 'lucide-react';
-import { useMarket } from '../contexts/MarketContext';
 import { DailyNote, Trade, TradingGoal, TradingRule } from '../types';
 
 interface JournalNotesViewProps {
@@ -63,7 +62,7 @@ const PRO_RULE_PRESETS: { text: string; category: TradingRule['category']; sever
 ];
 
 const PRO_GOAL_PRESETS: { title: string; targetValue: number; unit: TradingGoal['unit']; period: TradingGoal['period']; category: TradingGoal['category'] }[] = [
-  { title: 'Monthly Net P&L Target', targetValue: 50000, unit: 'Currency', period: 'Monthly', category: 'Profit' },
+  { title: 'Monthly Net P&L Target', targetValue: 50000, unit: '₹', period: 'Monthly', category: 'Profit' },
   { title: 'Monthly Win Rate Target', targetValue: 65, unit: '%', period: 'Monthly', category: 'Win Rate' },
   { title: 'Discipline Execution Streak', targetValue: 15, unit: 'Days', period: 'Monthly', category: 'Discipline' },
   { title: 'Max Trades Per Day Limit', targetValue: 3, unit: 'Trades', period: 'Weekly', category: 'Consistency' },
@@ -91,7 +90,6 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<'journal' | 'rules' | 'goals' | 'reports'>('journal');
 
   // Daily note form state
-  const { currencySymbol } = useMarket();
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [noteContent, setNoteContent] = useState('');
   const [preMarketPlan, setPreMarketPlan] = useState('');
@@ -114,7 +112,7 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
   // Goal State
   const [newGoalTitle, setNewGoalTitle] = useState('');
   const [newGoalTarget, setNewGoalTarget] = useState<number | ''>('');
-  const [newGoalUnit, setNewGoalUnit] = useState<TradingGoal['unit']>('Currency');
+  const [newGoalUnit, setNewGoalUnit] = useState<TradingGoal['unit']>('₹');
   const [newGoalPeriod, setNewGoalPeriod] = useState<TradingGoal['period']>('Monthly');
   const [newGoalCategory, setNewGoalCategory] = useState<TradingGoal['category']>('Profit');
 
@@ -323,7 +321,7 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
 
     const updated = goals.map((g) => {
       let newVal = g.currentValue || 0;
-      if (g.category === 'Profit' || g.unit === 'Currency') {
+      if (g.category === 'Profit' || g.unit === '₹') {
         newVal = Math.max(0, totalPnl);
       } else if (g.category === 'Win Rate' || g.unit === '%') {
         newVal = winRate;
@@ -435,7 +433,7 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
         title: 'Max Daily Loss Quota',
         targetValue: performanceStats.suggestedDailyLossQuota,
         currentValue: 0,
-        unit: 'Currency',
+        unit: '₹',
         period: 'Monthly',
         category: 'Discipline',
         achieved: false,
@@ -670,7 +668,7 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
                   value={preMarketPlan}
                   onChange={(e) => setPreMarketPlan(e.target.value)}
                   rows={2}
-                  placeholder="e.g. Nifty key support at 24,800. Only taking Long calls above 25,000 breakout. Max risk ${currencySymbol}2,000."
+                  placeholder="e.g. Nifty key support at 24,800. Only taking Long calls above 25,000 breakout. Max risk ₹2,000."
                   className="w-full p-3 rounded-xl border border-slate-300 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
@@ -1180,7 +1178,7 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
                     onChange={(e) => setNewGoalUnit(e.target.value as any)}
                     className="px-2 py-2 rounded-xl border border-slate-300 text-xs bg-white font-bold"
                   >
-                    <option value="Currency">{currencySymbol}</option>
+                    <option value="₹">₹</option>
                     <option value="%">%</option>
                     <option value="Trades">Trades</option>
                     <option value="Days">Days</option>
@@ -1235,9 +1233,9 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
 
                         <div className="flex items-center space-x-2">
                           <span className="text-xs font-black font-mono text-slate-800">
-                            {g.unit === 'Currency' ? `${currencySymbol}${curr.toLocaleString('en-IN')}` : `${curr} ${g.unit}`} /{' '}
+                            {g.unit === '₹' ? `₹${curr.toLocaleString('en-IN')}` : `${curr} ${g.unit}`} /{' '}
                             <span className="text-emerald-700">
-                              {g.unit === 'Currency' ? `${currencySymbol}${target.toLocaleString('en-IN')}` : `${target} ${g.unit}`}
+                              {g.unit === '₹' ? `₹${target.toLocaleString('en-IN')}` : `${target} ${g.unit}`}
                             </span>
                           </span>
                           <button
@@ -1287,26 +1285,26 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
                         <div className="flex flex-wrap items-center gap-1.5">
                           <button
                             type="button"
-                            onClick={() => handleUpdateGoalProgress(g.id, g.unit === 'Currency' ? -1000 : -1)}
+                            onClick={() => handleUpdateGoalProgress(g.id, g.unit === '₹' ? -1000 : -1)}
                             className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-md border border-slate-200 cursor-pointer text-[10px]"
                           >
-                            -{g.unit === 'Currency' ? '1k' : '1'}
+                            -{g.unit === '₹' ? '1k' : '1'}
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleUpdateGoalProgress(g.id, g.unit === 'Currency' ? 1000 : 1)}
+                            onClick={() => handleUpdateGoalProgress(g.id, g.unit === '₹' ? 1000 : 1)}
                             className="px-2 py-0.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold rounded-md border border-emerald-300 cursor-pointer text-[10px]"
                           >
-                            +{g.unit === 'Currency' ? '1k' : '1'}
+                            +{g.unit === '₹' ? '1k' : '1'}
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleUpdateGoalProgress(g.id, g.unit === 'Currency' ? 5000 : 5)}
+                            onClick={() => handleUpdateGoalProgress(g.id, g.unit === '₹' ? 5000 : 5)}
                             className="px-2 py-0.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold rounded-md border border-emerald-300 cursor-pointer text-[10px]"
                           >
-                            +{g.unit === 'Currency' ? '5k' : '5'}
+                            +{g.unit === '₹' ? '5k' : '5'}
                           </button>
-                          {g.unit === 'Currency' && (
+                          {g.unit === '₹' && (
                             <button
                               type="button"
                               onClick={() => handleUpdateGoalProgress(g.id, 10000)}
@@ -1362,7 +1360,7 @@ export const JournalNotesView: React.FC<JournalNotesViewProps> = ({
                   </div>
                   <p className="text-xs font-bold text-slate-900">{preset.title}</p>
                   <p className="text-[11px] font-mono text-slate-600">
-                    Target: {preset.unit === 'Currency' ? `${currencySymbol}${preset.targetValue.toLocaleString('en-IN')}` : `${preset.targetValue} ${preset.unit}`} ({preset.period})
+                    Target: {preset.unit === '₹' ? `₹${preset.targetValue.toLocaleString('en-IN')}` : `${preset.targetValue} ${preset.unit}`} ({preset.period})
                   </p>
                 </div>
               ))}

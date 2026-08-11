@@ -1,4 +1,4 @@
-export type Segment = 'Options' | 'Futures' | 'Equity' | 'Commodity' | 'Currency' | 'Forex' | 'Crypto' | 'Indices';
+export type Segment = 'Options' | 'Futures' | 'Equity' | 'Commodity' | 'Currency';
 
 export type OptionType = 'CE' | 'PE';
 
@@ -102,7 +102,7 @@ export interface TradingGoal {
   title: string;
   targetValue: number;
   currentValue: number;
-  unit: 'Currency' | '%' | 'Trades' | 'Days';
+  unit: '₹' | '%' | 'Trades' | 'Days';
   period: 'Weekly' | 'Monthly' | 'Quarterly' | 'Yearly';
   achieved: boolean;
   category?: 'Profit' | 'Win Rate' | 'Discipline' | 'Consistency';

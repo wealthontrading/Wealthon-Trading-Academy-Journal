@@ -6,7 +6,7 @@ import {
   Activity,
   Award,
   Zap,
-  IndianRupee, DollarSign,
+  IndianRupee,
   Layers,
   Calendar,
   Flame,
@@ -17,7 +17,6 @@ import {
   Wallet,
 } from 'lucide-react';
 import { DashboardMetrics } from '../types';
-import { useMarket } from '../contexts/MarketContext';
 import { formatINR } from '../utils/calculations';
 
 interface DashboardStatsProps {
@@ -25,14 +24,12 @@ interface DashboardStatsProps {
 }
 
 export const DashboardStats: React.FC<DashboardStatsProps> = ({ metrics }) => {
-  const { marketType } = useMarket();
-  const CurrencyIcon = marketType === 'Forex' ? DollarSign : IndianRupee;
   const cards = [
     {
       title: 'Net P&L',
       value: formatINR(metrics.netPnL),
       subText: metrics.totalTrades > 0 ? `From ${metrics.totalTrades} total trades` : 'No trades recorded',
-      icon: CurrencyIcon,
+      icon: IndianRupee,
       color: metrics.netPnL >= 0 ? 'emerald' : 'rose',
       highlight: true,
     },

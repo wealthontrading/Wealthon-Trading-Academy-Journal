@@ -15,19 +15,6 @@ export const PLATFORMS = [
   'Custom / Other'
 ];
 
-export const FOREX_SYMBOLS = [
-  'EUR/USD',
-  'GBP/USD',
-  'USD/JPY',
-  'XAU/USD (Gold)',
-  'XAG/USD (Silver)',
-  'BTC/USD',
-  'ETH/USD',
-  'US30',
-  'NAS100',
-  'Custom'
-];
-
 export const INDICES_AND_SYMBOLS = [
   'Nifty',
   'Bank Nifty',
@@ -37,12 +24,6 @@ export const INDICES_AND_SYMBOLS = [
   'BSE Bankex',
   'Equity / Stock',
   'Custom'
-];
-
-export const FOREX_SEGMENTS: Segment[] = [
-  'Forex',
-  'Crypto',
-  'Indices'
 ];
 
 export const SEGMENTS: Segment[] = [
@@ -215,7 +196,7 @@ export const DEFAULT_TRADING_RULES = [
 ];
 
 export const DEFAULT_GOALS = [
-  { id: '1', title: 'Monthly Net Profit', targetValue: 50000, currentValue: 0, unit: 'Currency' as const, period: 'Monthly' as const, achieved: false },
+  { id: '1', title: 'Monthly Net Profit', targetValue: 50000, currentValue: 0, unit: '₹' as const, period: 'Monthly' as const, achieved: false },
   { id: '2', title: 'Win Rate Target', targetValue: 65, currentValue: 0, unit: '%' as const, period: 'Monthly' as const, achieved: false },
   { id: '3', title: 'Disciplined Trades Executed', targetValue: 20, currentValue: 0, unit: 'Trades' as const, period: 'Monthly' as const, achieved: false }
 ];

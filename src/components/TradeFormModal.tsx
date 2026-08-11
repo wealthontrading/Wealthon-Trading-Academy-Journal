@@ -7,16 +7,15 @@ import {
   Image as ImageIcon,
   Sparkles,
   Info,
-  IndianRupee, DollarSign,
+  IndianRupee,
   Clock,
   Calendar,
   CheckCircle2,
   Trash2,
 } from 'lucide-react';
-import { EMOTIONS, INDICES_AND_SYMBOLS, SEGMENTS, FOREX_SEGMENTS, FOREX_SYMBOLS } from '../data/constants';
-import { useMarket } from '../contexts/MarketContext';
+import { EMOTIONS, INDICES_AND_SYMBOLS, SEGMENTS } from '../data/constants';
 import { BuySell, Emotion, ExecutionMode, OptionType, Segment, StrategyItem, Trade, TradeLeg } from '../types';
-import { estimateIndianCharges, formatINR } from '../utils/calculations';
+import { estimateIndianCharges } from '../utils/calculations';
 
 interface LegState {
   id: string;
@@ -44,22 +43,18 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
   strategiesList = [],
   initialStrategy = '',
 }) => {
-  const { marketType, currencySymbol } = useMarket();
-  const CurrencyIcon = marketType === 'Forex' ? DollarSign : IndianRupee;
   const todayStr = new Date().toISOString().split('T')[0];
-  const currentSegments = marketType === 'Forex' ? FOREX_SEGMENTS : SEGMENTS;
-  const currentSymbols = marketType === 'Forex' ? FOREX_SYMBOLS : INDICES_AND_SYMBOLS;
   const timeStr = new Date().toTimeString().slice(0, 5);
 
   const [date, setDate] = useState(todayStr);
   const [time, setTime] = useState(timeStr);
   const [platform, setPlatform] = useState(defaultPlatform);
-  const [segment, setSegment] = useState<Segment>(marketType === 'Forex' ? 'Forex' : 'Options');
+  const [segment, setSegment] = useState<Segment>('Options');
   const [expiryDate, setExpiryDate] = useState('');
   const [indexOrStock, setIndexOrStock] = useState('Nifty');
   const [stockName, setStockName] = useState('RELIANCE');
   const [customIndex, setCustomIndex] = useState('');
-  const [strikeVal, setStrikeVal] = useState('');
+  const [strikeVal, setStrikeVal] = useState('25000');
   const [optionType, setOptionType] = useState<OptionType>('CE');
   const [buyOrSell, setBuyOrSell] = useState<BuySell>('Buy');
 
@@ -397,7 +392,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
                   ₹{(netPnL ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                 </div>
                 <div className="text-xs opacity-90 mt-0.5">
-                  Gross P&L: {formatINR((grossPnL ?? 0))} | Total Charges: {currencySymbol}
+                  Gross P&L: ₹{(grossPnL ?? 0).toLocaleString('en-IN')} | Total Charges: ₹
                   {(Number(brokerage || 0) + Number(taxes || 0) + Number(otherCharges || 0)).toLocaleString('en-IN')}
                 </div>
               </div>
@@ -512,7 +507,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
                   onChange={(e) => setSegment(e.target.value as Segment)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
                 >
-                  {currentSegments.map((s) => (
+                  {SEGMENTS.map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
@@ -538,7 +533,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
                   }}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white font-semibold"
                 >
-                  {currentSymbols.map((i) => (
+                  {INDICES_AND_SYMBOLS.map((i) => (
                     <option key={i} value={i}>
                       {i}
                     </option>
@@ -672,7 +667,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
                           </span>
                           <div className="flex items-center space-x-3">
                             <span className={`font-mono font-bold ${legPnL >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                              Leg P&L: {formatINR(legPnL)}
+                              Leg P&L: ₹{legPnL.toLocaleString('en-IN')}
                             </span>
                             <button
                               type="button"
@@ -692,7 +687,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                           <label className="block text-xs font-semibold text-slate-700 mb-1">
-                            Entry Price ({currencySymbol}) * {legs.length > 1 ? `Leg #${index + 1}` : ''}
+                            Entry Price (₹) * {legs.length > 1 ? `Leg #${index + 1}` : ''}
                           </label>
                           <input
                             type="number"
@@ -711,7 +706,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
 
                         <div>
                           <label className="block text-xs font-semibold text-slate-700 mb-1">
-                            Exit Price ({currencySymbol}) * {legs.length > 1 ? `Leg #${index + 1}` : ''}
+                            Exit Price (₹) * {legs.length > 1 ? `Leg #${index + 1}` : ''}
                           </label>
                           <input
                             type="number"
@@ -759,11 +754,11 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
                   </div>
                   <div>
                     <span>Weighted Avg Entry: </span>
-                    <span className="font-bold text-slate-900">{currencySymbol}{weightedAvgEntry.toFixed(2)}</span>
+                    <span className="font-bold text-slate-900">₹{weightedAvgEntry.toFixed(2)}</span>
                   </div>
                   <div>
                     <span>Weighted Avg Exit: </span>
-                    <span className="font-bold text-slate-900">{currencySymbol}{weightedAvgExit.toFixed(2)}</span>
+                    <span className="font-bold text-slate-900">₹{weightedAvgExit.toFixed(2)}</span>
                   </div>
                 </div>
               )}
@@ -793,7 +788,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total Brokerage ({currencySymbol})</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total Brokerage (₹)</label>
                   <input
                     type="number"
                     step="any"
@@ -806,7 +801,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total GST & STT ({currencySymbol})</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total GST & STT (₹)</label>
                   <input
                     type="number"
                     step="any"
@@ -819,7 +814,7 @@ export const TradeFormModal: React.FC<TradeFormModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Other Total Charges ({currencySymbol})</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Other Total Charges (₹)</label>
                   <input
                     type="number"
                     step="any"

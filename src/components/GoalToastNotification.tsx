@@ -1,4 +1,3 @@
-import { useMarket } from '../contexts/MarketContext';
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trophy, Sparkles, CheckCircle2, X, Target, ArrowRight, Award, Zap } from 'lucide-react';
@@ -58,7 +57,6 @@ interface GoalToastCardProps {
 }
 
 const GoalToastCard: React.FC<GoalToastCardProps> = ({ toast, onDismiss, onNavigateToGoals }) => {
-  const { currencySymbol } = useMarket();
   const { goal, quote } = toast;
   const [progress, setProgress] = useState(100);
 
@@ -81,8 +79,8 @@ const GoalToastCard: React.FC<GoalToastCardProps> = ({ toast, onDismiss, onNavig
     return () => clearInterval(timer);
   }, [onDismiss]);
 
-  const formattedCurr = goal.unit === 'Currency' ? `${currencySymbol}${(goal.currentValue || 0).toLocaleString('en-IN')}` : `${goal.currentValue} ${goal.unit}`;
-  const formattedTarget = goal.unit === 'Currency' ? `${currencySymbol}${(goal.targetValue || 0).toLocaleString('en-IN')}` : `${goal.targetValue} ${goal.unit}`;
+  const formattedCurr = goal.unit === '₹' ? `₹${(goal.currentValue || 0).toLocaleString('en-IN')}` : `${goal.currentValue} ${goal.unit}`;
+  const formattedTarget = goal.unit === '₹' ? `₹${(goal.targetValue || 0).toLocaleString('en-IN')}` : `${goal.targetValue} ${goal.unit}`;
 
   return (
     <motion.div

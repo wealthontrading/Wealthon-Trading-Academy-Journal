@@ -22,8 +22,6 @@ import {
 } from 'lucide-react';
 import { Trade } from '../types';
 import { formatINR } from '../utils/calculations';
-import { useMarket } from '../contexts/MarketContext';
-import { SEGMENTS, FOREX_SEGMENTS } from '../data/constants';
 import { exportTradesToExcel, exportTradesToPDF, printTradeHistory } from '../utils/export';
 
 interface TradeHistoryProps {
@@ -223,8 +221,6 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
   const [selectedMonth, setSelectedMonth] = useState(currentLiveMonth);
   const [selectedYear, setSelectedYear] = useState(currentLiveYear);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'Profit' | 'Loss' | 'Breakeven'>('ALL');
-  const { marketType, currencySymbol } = useMarket();
-  const currentSegments = marketType === 'Forex' ? FOREX_SEGMENTS : SEGMENTS;
   const [segmentFilter, setSegmentFilter] = useState('ALL');
   const [sortField, setSortField] = useState<'date' | 'netPnL' | 'quantity' | 'entryPrice'>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -519,7 +515,11 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               className="w-full p-2 rounded-lg border border-slate-300 bg-white font-medium text-slate-800"
             >
               <option value="ALL">All Segments</option>
-              {currentSegments.map(s => (<option key={s} value={s}>{s}</option>))}
+              <option value="Options">Options</option>
+              <option value="Futures">Futures</option>
+              <option value="Equity">Equity</option>
+              <option value="Commodity">Commodity</option>
+              <option value="Currency">Currency</option>
             </select>
           </div>
         </div>
@@ -646,8 +646,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                           {t.buyOrSell}
                         </span>
                       </td>
-                      <td className="py-3 px-3 whitespace-nowrap font-mono">{currencySymbol}{t.entryPrice}</td>
-                      <td className="py-3 px-3 whitespace-nowrap font-mono">{currencySymbol}{t.exitPrice}</td>
+                      <td className="py-3 px-3 whitespace-nowrap font-mono">₹{t.entryPrice}</td>
+                      <td className="py-3 px-3 whitespace-nowrap font-mono">₹{t.exitPrice}</td>
                       <td className="py-3 px-3 whitespace-nowrap font-mono">{t.quantity}</td>
                       <td className="py-3 px-3 whitespace-nowrap font-mono text-slate-600">
                         ₹{t.grossPnL}

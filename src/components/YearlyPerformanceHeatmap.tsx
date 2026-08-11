@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Calendar as CalendarIcon, TrendingUp, TrendingDown, IndianRupee, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, TrendingUp, TrendingDown, IndianRupee, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Trade } from '../types';
-import { useMarket } from '../contexts/MarketContext';
 import { formatINR } from '../utils/calculations';
 
 interface YearlyPerformanceHeatmapProps {
@@ -9,8 +8,6 @@ interface YearlyPerformanceHeatmapProps {
 }
 
 export const YearlyPerformanceHeatmap: React.FC<YearlyPerformanceHeatmapProps> = ({ trades }) => {
-  const { marketType } = useMarket();
-  const CurrencyIcon = marketType === 'Forex' ? DollarSign : IndianRupee;
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   const availableYears = useMemo(() => {

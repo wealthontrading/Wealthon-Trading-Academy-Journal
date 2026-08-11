@@ -84,7 +84,7 @@ STUDENT DETAILS:
 ----------------
 • Student Name: ${studentName}
 • Platform: ${profile.platform || 'Indian Options Trading'}
-• Capital / Margin: ${formatINR((profile.capital || 0))}
+• Capital / Margin: ₹${(profile.capital || 0).toLocaleString('en-IN')}
 • Contact Email / Phone: ${studentContact || 'Not provided'}
 • Report Date: ${new Date().toLocaleDateString('en-IN')} (${scopeLabel})
 
@@ -94,7 +94,7 @@ SUMMARY PERFORMANCE METRICS:
 • Net Realized P&L: ${formatINR(scopeMetrics.netPnL)}
 • Win Rate: ${scopeMetrics.winRate.toFixed(1)}%
 • Winning Trades: ${scopeMetrics.winningTrades} | Losing Trades: ${scopeMetrics.losingTrades}
-• Total Brokerage & Charges: {formatINR((scopeMetrics?.totalCharges ?? 0))}
+• Total Brokerage & Charges: ₹{(scopeMetrics?.totalCharges ?? 0).toLocaleString('en-IN')}
 
 MESSAGE / QUESTIONS FOR MENTER:
 ------------------------------
@@ -435,7 +435,7 @@ Journal Today, Profit Tomorrow
                 </div>
                 <div className="bg-white p-2 rounded-lg border border-slate-200">
                   <span className="text-slate-500 block text-[10px]">Total Charges</span>
-                  <span className="font-bold text-slate-700">{formatINR((scopeMetrics?.totalCharges ?? 0))}</span>
+                  <span className="font-bold text-slate-700">₹{(scopeMetrics?.totalCharges ?? 0).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="bg-white p-2 rounded-lg border border-slate-200">
                   <span className="text-slate-500 block text-[10px]">Profit Factor</span>
