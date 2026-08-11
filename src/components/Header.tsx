@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Clock, Calendar, User, ShieldCheck, Settings, Plus, BarChart3, BookOpen, ShieldAlert, GraduationCap, Send, CheckCircle2, Radio, Link2, Bot, Sparkles, Headphones, Layers3 } from 'lucide-react';
 import { TraderProfile, UserSession } from '../types';
 import { Logo } from './Logo';
+import { useMarket } from '../contexts/MarketContext';
 
 interface HeaderProps {
   profile: TraderProfile;
@@ -35,6 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [timeStr, setTimeStr] = useState('');
   const [dateStr, setDateStr] = useState('');
+  const { marketType, setMarketType } = useMarket();
 
   useEffect(() => {
     const updateTime = () => {
@@ -132,6 +134,24 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
+                    {/* Market Toggle */}
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="flex items-center bg-slate-100 rounded-xl p-1 text-[11px] font-bold shadow-inner border border-slate-200">
+              <button
+                onClick={() => setMarketType('Indian')}
+                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 ${marketType === 'Indian' ? 'bg-white text-blue-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                <span>Indian Market</span>
+              </button>
+              <button
+                onClick={() => setMarketType('Forex')}
+                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 ${marketType === 'Forex' ? 'bg-white text-indigo-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                <span>Forex Market</span>
+              </button>
+            </div>
+          </div>
+          
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 self-end md:self-auto">
             {onOpenAdminPortal && (

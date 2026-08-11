@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { Trade } from '../types';
+import { globalMarketType } from './calculations';
 
 export function exportTradesToExcel(trades: Trade[], traderName: string = 'Trader'): void {
   if (!trades || trades.length === 0) {
@@ -17,14 +18,14 @@ export function exportTradesToExcel(trades: Trade[], traderName: string = 'Trade
     Symbol: t.indexOrStock,
     Strike: t.strikePrice || '-',
     Side: t.buyOrSell,
-    'Entry (₹)': t.entryPrice,
-    'Exit (₹)': t.exitPrice,
+    'Entry ($/₹)': t.entryPrice,
+    'Exit ($/₹)': t.exitPrice,
     Qty: t.quantity,
-    'Gross P&L (₹)': t.grossPnL,
-    'Brokerage (₹)': t.brokerage || 0,
-    'Taxes & Charges (₹)': (t.taxes || 0) + (t.otherCharges || 0),
-    'Total Charges (₹)': (t.brokerage || 0) + (t.taxes || 0) + (t.otherCharges || 0),
-    'Net P&L (₹)': t.netPnL,
+    'Gross P&L ($/₹)': t.grossPnL,
+    'Brokerage ($/₹)': t.brokerage || 0,
+    'Taxes & Charges ($/₹)': (t.taxes || 0) + (t.otherCharges || 0),
+    'Total Charges ($/₹)': (t.brokerage || 0) + (t.taxes || 0) + (t.otherCharges || 0),
+    'Net P&L ($/₹)': t.netPnL,
     Status: t.status,
     Strategy: t.strategy || '',
     Emotion: t.emotion || '',
@@ -58,9 +59,9 @@ export function exportTradesToPDF(trades: Trade[], traderName: string = 'Trader'
 
   const pageWidth = 210;
   const pageHeight = 297;
+  const currencySymbol = globalMarketType === 'Forex' ? '$' : '₹';
   const margin = 14;
-  const contentWidth = pageWidth - margin * 2; // 182mm
-
+  const contentWidth = pageWidth - margin * 2;
   let currentY = 15;
 
   // Header Banner
@@ -95,14 +96,14 @@ export function exportTradesToPDF(trades: Trade[], traderName: string = 'Trader'
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(51, 65, 85);
 
-  doc.text(`Net Realized P&L: ₹${totalNetPnL.toLocaleString('en-IN')}`, margin + 5, currentY + 7);
+  doc.text(`Net Realized P&L: ${currencySymbol}${totalNetPnL.toLocaleString('en-IN')}`, margin + 5, currentY + 7);
   doc.text(`Win Rate: ${winRate.toFixed(1)}% (${wins}W / ${losses}L)`, margin + 70, currentY + 7);
-  doc.text(`Total Charges: ₹${totalCharges.toLocaleString('en-IN')}`, margin + 130, currentY + 7);
+  doc.text(`Total Charges: ${currencySymbol}${totalCharges.toLocaleString('en-IN')}`, margin + 130, currentY + 7);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
-  doc.text(`Gross P&L: ₹${totalGrossPnL.toLocaleString('en-IN')} | Report Scope: Detailed Trade Rationale & Reasons Log`, margin + 5, currentY + 14);
+  doc.text(`Gross P&L: ${currencySymbol}${totalGrossPnL.toLocaleString('en-IN')} | Report Scope: Detailed Trade Rationale & Reasons Log`, margin + 5, currentY + 14);
 
   currentY += 26;
 
@@ -145,7 +146,7 @@ export function exportTradesToPDF(trades: Trade[], traderName: string = 'Trader'
     else if (isLoss) doc.setTextColor(220, 38, 38); // red
     else doc.setTextColor(71, 85, 105);
 
-    const pnlStr = `Net P&L: ₹${tradeNetPnL.toLocaleString('en-IN')} (${t.status})`;
+    const pnlStr = `Net P&L: ${currencySymbol}${tradeNetPnL.toLocaleString('en-IN')} (${t.status})`;
     doc.text(pnlStr, pageWidth - margin - 3 - doc.getTextWidth(pnlStr), currentY + 4.8);
 
     currentY += 10;
@@ -155,13 +156,13 @@ export function exportTradesToPDF(trades: Trade[], traderName: string = 'Trader'
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(51, 65, 85);
 
-    const line1 = `Entry: ₹${t.entryPrice}  |  Exit: ₹${t.exitPrice}  |  Qty: ${t.quantity}  |  Gross P&L: ₹${t.grossPnL}`;
+    const line1 = `Entry: ${currencySymbol}${t.entryPrice}  |  Exit: ${currencySymbol}${t.exitPrice}  |  Qty: ${t.quantity}  |  Gross P&L: ${currencySymbol}${t.grossPnL}`;
     doc.text(line1, margin + 4, currentY);
 
     currentY += 5;
 
     const totalTradeCharges = (t.brokerage || 0) + (t.taxes || 0) + (t.otherCharges || 0);
-    const line2 = `Charges: ₹${totalTradeCharges} (Brk: ₹${t.brokerage || 0}, Tax: ₹${(t.taxes || 0) + (t.otherCharges || 0)})  |  Holding Time: ${t.holdingTimeMinutes ? `${t.holdingTimeMinutes} mins` : 'N/A'}`;
+    const line2 = `Charges: ${currencySymbol}${totalTradeCharges} (Brk: ${currencySymbol}${t.brokerage || 0}, Tax: ${currencySymbol}${(t.taxes || 0) + (t.otherCharges || 0)})  |  Holding Time: ${t.holdingTimeMinutes ? `${t.holdingTimeMinutes} mins` : 'N/A'}`;
     doc.text(line2, margin + 4, currentY);
 
     currentY += 5;
@@ -221,4 +222,3 @@ export function exportTradesToPDF(trades: Trade[], traderName: string = 'Trader'
 export function printTradeHistory(): void {
   window.print();
 }
-

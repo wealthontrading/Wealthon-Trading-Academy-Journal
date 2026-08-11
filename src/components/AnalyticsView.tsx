@@ -867,7 +867,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                       </td>
 
                       <td className="py-3.5 px-3 text-right font-mono text-slate-500">
-                        ₹{m.charges.toLocaleString('en-IN')}
+                        {formatINR(m.charges)}
                       </td>
 
                       <td className={`py-3.5 px-3 text-right font-mono font-black ${m.netPnL >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
@@ -956,7 +956,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                 <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
                   <span className="text-slate-500 font-medium block">Total Brokerage & GST</span>
                   <span className="text-base font-black text-slate-700 mt-0.5 block">
-                    ₹{(selectedDaySummary?.totalCharges ?? 0).toLocaleString('en-IN')}
+                    {formatINR((selectedDaySummary?.totalCharges ?? 0))}
                   </span>
                 </div>
 
@@ -1031,7 +1031,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                                 {formatINR(t.grossPnL)}
                               </td>
                               <td className="py-3 px-3 text-right text-slate-500 font-mono whitespace-nowrap">
-                                ₹{(totalCharges ?? 0).toLocaleString('en-IN')}
+                                {formatINR((totalCharges ?? 0))}
                               </td>
                               <td
                                 className={`py-3 px-3 text-right font-black font-mono whitespace-nowrap ${

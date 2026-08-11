@@ -90,7 +90,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...chatMessages, { role: 'user', content: text }],
-          model: 'gemini-2.0-flash',
+          model: 'gemini-3.6-flash',
           systemInstruction,
         }),
       });

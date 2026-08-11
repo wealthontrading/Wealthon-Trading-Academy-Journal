@@ -326,10 +326,26 @@ export function estimateIndianCharges(
   };
 }
 
+export let globalMarketType: 'Indian' | 'Forex' = 'Indian';
+export function setGlobalMarketType(type: 'Indian' | 'Forex') {
+  globalMarketType = type;
+}
+
 export function formatINR(amount: number): string {
   const safeAmount = Number.isNaN(Number(amount)) || amount === undefined || amount === null ? 0 : Number(amount);
   const isNegative = safeAmount < 0;
   const absVal = Math.abs(safeAmount);
+  
+  if (globalMarketType === 'Forex') {
+    const converted = absVal;
+    const formatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 2,
+    }).format(converted);
+    return isNegative ? `-${formatted}` : formatted;
+  }
+
   const formatted = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',

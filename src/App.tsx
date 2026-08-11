@@ -26,6 +26,8 @@ import {
   updateTrade,
 } from './utils/storage';
 import { calculateMetrics } from './utils/calculations';
+import { useMarket } from './contexts/MarketContext';
+import { FOREX_SEGMENTS } from './data/constants';
 import { DailyNote, StrategyItem, SystemMaintenanceState, Trade, TraderProfile, TradingGoal, TradingRule, UserSession } from './types';
 import { getStoredMaintenanceState, getStoredSession, saveStoredSession } from './utils/studentStorage';
 import {
@@ -344,7 +346,15 @@ export default function App() {
   };
 
   // Metrics
-  const metrics = useMemo(() => calculateMetrics(trades), [trades]);
+  const { marketType } = useMarket();
+  const displayedTrades = useMemo(() => {
+    return trades.filter(t => {
+      const isForex = FOREX_SEGMENTS.includes(t.segment as any);
+      return marketType === 'Forex' ? isForex : !isForex;
+    });
+  }, [trades, marketType]);
+
+  const metrics = useMemo(() => calculateMetrics(displayedTrades), [displayedTrades]);
 
   const isFirstLaunchNeeded = isProfileLoaded && !profile.isFirstLaunchCompleted && session?.role !== 'admin' && viewMode === 'student';
 
@@ -587,7 +597,7 @@ export default function App() {
           setActiveTab('dashboard');
           window.history.replaceState({ tab: 'dashboard', modal: null }, '', '#dashboard');
         }}
-        trades={trades}
+        trades={displayedTrades}
         onSeedSampleTrades={handleSeedSampleTrades}
         onResetData={handleResetJournal}
       />
@@ -724,14 +734,13 @@ export default function App() {
                   </button>
                 </div>
 
-                <MonthlyPerformance trades={trades} />
-                <ExecutionModePerformanceTable trades={trades} />
+                <MonthlyPerformance trades={displayedTrades} />
+                <ExecutionModePerformanceTable trades={displayedTrades} />
               </div>
             )}
 
             {activeTab === 'history' && (
-              <TradeHistory
-                trades={trades}
+              <TradeHistory trades={displayedTrades}
                 traderName={profile.name}
                 onViewTrade={handleOpenViewTrade}
                 onEditTrade={(t) => handleOpenAddTrade(t)}
@@ -745,7 +754,7 @@ export default function App() {
             {activeTab === 'strategyBuilder' && (
               <StrategyBuilderView
                 strategies={strategies}
-                trades={trades}
+                trades={displayedTrades}
                 onAddStrategy={handleAddStrategy}
                 onEditStrategy={handleEditStrategy}
                 onDeleteStrategy={handleDeleteStrategy}
@@ -754,8 +763,7 @@ export default function App() {
             )}
 
             {activeTab === 'analytics' && (
-              <AnalyticsView
-                trades={trades}
+              <AnalyticsView trades={displayedTrades}
                 metrics={metrics}
                 strategies={strategies}
                 onViewTrade={handleOpenViewTrade}
@@ -769,7 +777,7 @@ export default function App() {
                 dailyNotes={dailyNotes}
                 rules={rules}
                 goals={goals}
-                trades={trades}
+                trades={displayedTrades}
                 onSaveDailyNote={(note) => {
                   handleSaveDailyNote(note);
                   setIsSavedModalOpen(true);
@@ -807,8 +815,7 @@ export default function App() {
             )}
 
             {activeTab === 'aiAssistant' && (
-              <AITradingAssistantView
-                trades={trades}
+              <AITradingAssistantView trades={displayedTrades}
                 rules={rules}
                 dailyNotes={dailyNotes}
                 onSaveDailyNote={(note) => {
@@ -885,7 +892,7 @@ export default function App() {
       <SendToMentorModal
         isOpen={isSendToMentorOpen}
         onClose={handleCloseSendToMentor}
-        trades={trades}
+        trades={displayedTrades}
         profile={profile}
         metrics={metrics}
       />

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useMarket } from '../contexts/MarketContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Calendar, Clock, IndianRupee, Tag, Smile, FileText, Trash2, Edit2 } from 'lucide-react';
 import { Trade } from '../types';
@@ -19,6 +20,7 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const { currencySymbol } = useMarket();
   if (!trade) return null;
 
   return (
@@ -89,11 +91,11 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                   <span className="text-xs text-slate-500 block">Entry Price</span>
-                  <span className="text-base font-bold text-slate-900">₹{trade.entryPrice}</span>
+                  <span className="text-base font-bold text-slate-900">{currencySymbol}{trade.entryPrice}</span>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                   <span className="text-xs text-slate-500 block">Exit Price</span>
-                  <span className="text-base font-bold text-slate-900">₹{trade.exitPrice}</span>
+                  <span className="text-base font-bold text-slate-900">{currencySymbol}{trade.exitPrice}</span>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                   <span className="text-xs text-slate-500 block">Quantity</span>
@@ -105,19 +107,19 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs">
                 <div className="flex justify-between font-semibold text-slate-700 pb-1 border-b border-slate-200">
                   <span>Gross P&L:</span>
-                  <span>₹{trade.grossPnL}</span>
+                  <span>{currencySymbol}{trade.grossPnL}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Brokerage:</span>
-                  <span>₹{trade.brokerage}</span>
+                  <span>{currencySymbol}{trade.brokerage}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>GST & Taxes:</span>
-                  <span>₹{trade.taxes}</span>
+                  <span>{currencySymbol}{trade.taxes}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Other Charges:</span>
-                  <span>₹{trade.otherCharges}</span>
+                  <span>{currencySymbol}{trade.otherCharges}</span>
                 </div>
                 <div className="flex justify-between font-bold text-slate-900 pt-1 border-t border-slate-200 text-sm">
                   <span>Net P&L:</span>

@@ -1,3 +1,4 @@
+import { useMarket } from '../contexts/MarketContext';
 import React, { useState } from 'react';
 import { Trade } from '../types';
 import { Cpu, User, Copy, Layers, HelpCircle, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Scale, BarChart2 } from 'lucide-react';
@@ -29,6 +30,7 @@ export interface ModeMetrics {
 }
 
 export const ExecutionModePerformanceTable: React.FC<ExecutionModePerformanceTableProps> = ({ trades }) => {
+  const { currencySymbol } = useMarket();
   const [selectedFilter, setSelectedFilter] = useState<'All' | 'Manual' | 'Algo' | 'Copy' | 'Multi-Leg'>('All');
 
   // Compute stats grouped by execution mode
@@ -227,7 +229,7 @@ export const ExecutionModePerformanceTable: React.FC<ExecutionModePerformanceTab
         <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Overall Net P&L</span>
           <span className={`text-base sm:text-lg font-extrabold ${totalNetPnL >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-            {totalNetPnL >= 0 ? '+' : ''}₹{totalNetPnL.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            {totalNetPnL >= 0 ? '+' : ''}{currencySymbol}{totalNetPnL.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </span>
         </div>
 
@@ -256,9 +258,9 @@ export const ExecutionModePerformanceTable: React.FC<ExecutionModePerformanceTab
               <th className="py-3 px-3 text-center">Win / Loss</th>
               <th className="py-3 px-3 text-center">Win Rate</th>
               <th className="py-3 px-3 text-right">Total Qty</th>
-              <th className="py-3 px-3 text-right">Charges (₹)</th>
-              <th className="py-3 px-3 text-right">Gross P&L (₹)</th>
-              <th className="py-3 px-4 text-right">Net P&L (₹)</th>
+              <th className="py-3 px-3 text-right">Charges ({currencySymbol})</th>
+              <th className="py-3 px-3 text-right">Gross P&L ({currencySymbol})</th>
+              <th className="py-3 px-4 text-right">Net P&L ({currencySymbol})</th>
               <th className="py-3 px-3 text-right">Avg / Trade</th>
               <th className="py-3 px-3 text-center">Profit Factor</th>
             </tr>
@@ -330,7 +332,7 @@ export const ExecutionModePerformanceTable: React.FC<ExecutionModePerformanceTab
 
                   {/* Gross P&L */}
                   <td className={`py-3.5 px-3 text-right font-bold ${m.grossPnL >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {m.grossPnL >= 0 ? '+' : ''}₹{m.grossPnL.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {m.grossPnL >= 0 ? '+' : ''}{currencySymbol}{m.grossPnL.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </td>
 
                   {/* Net P&L */}
@@ -341,13 +343,13 @@ export const ExecutionModePerformanceTable: React.FC<ExecutionModePerformanceTab
                         : 'bg-rose-50 text-rose-800 border border-rose-200'
                     }`}>
                       {isPositive ? <ArrowUpRight className="w-3.5 h-3.5 mr-0.5 text-emerald-600" /> : <ArrowDownRight className="w-3.5 h-3.5 mr-0.5 text-rose-600" />}
-                      {isPositive ? '+' : ''}₹{m.netPnL.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {isPositive ? '+' : ''}{currencySymbol}{m.netPnL.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </span>
                   </td>
 
                   {/* Avg Net per Trade */}
                   <td className={`py-3.5 px-3 text-right font-semibold ${m.avgNetPnL >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {m.avgNetPnL >= 0 ? '+' : ''}₹{m.avgNetPnL.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {m.avgNetPnL >= 0 ? '+' : ''}{currencySymbol}{m.avgNetPnL.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </td>
 
                   {/* Profit Factor */}

@@ -21,6 +21,7 @@ import {
   Trash2,
   Lightbulb,
 } from 'lucide-react';
+import { useMarket } from '../contexts/MarketContext';
 import { Trade, TradingRule, DailyNote, TraderProfile } from '../types';
 
 interface Message {
@@ -47,6 +48,7 @@ export const AITradingAssistantView: React.FC<AITradingAssistantViewProps> = ({
   profile,
   onNavigateTab,
 }) => {
+  const { currencySymbol } = useMarket();
   const [activeSubTab, setActiveSubTab] = useState<'chat' | 'journal' | 'insights'>('journal');
 
   // Calculate trade statistics context for AI
@@ -112,12 +114,12 @@ Trader Context:
 - Academy/Institute: ${profile.instituteName || 'WealthOn Trading Academy'}
 - Total Logged Trades: ${totalTrades}
 - Win Rate: ${winRate}% (${winningTrades.length} Wins, ${losingTrades.length} Losses)
-- Total Net P&L: ₹${totalNetPnL} (Charges: ₹${totalCharges})
+- Total Net P&L: ${currencySymbol}${totalNetPnL} (Charges: ${currencySymbol}${totalCharges})
 - Execution Breakdown: Manual (${manualTrades.length}), Algo (${algoTrades.length}), Copy (${copyTrades.length})
 - Active Trading Rules: ${rules.filter((r) => r.active).map((r) => r.text).join(', ') || 'None defined yet'}
 - Recent Trades Sample: ${trades
         .slice(0, 5)
-        .map((t) => `${t.indexOrStock} (${t.buyOrSell}) Net P&L: ₹${t.netPnL} [${t.tradeType || 'Manual'}]`)
+        .map((t) => `${t.indexOrStock} (${t.buyOrSell}) Net P&L: ${currencySymbol}${t.netPnL} [${t.tradeType || 'Manual'}]`)
         .join('; ')}
 `;
 
@@ -135,7 +137,7 @@ Trader Context:
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: apiMessages,
-            model: 'gemini-2.0-flash',
+            model: 'gemini-3.6-flash',
           }),
         });
 
@@ -153,7 +155,7 @@ Trader Context:
         const name = profile.name || 'Trader';
         const q = query.toLowerCase();
         if (q.includes('win rate') || q.includes('p&l') || q.includes('performance') || q.includes('stat')) {
-          aiContent = `### 📊 Performance & Win Rate Analysis for ${name}\n\n- **Total Trades Logged:** ${totalTrades}\n- **Current Win Rate:** **${winRate}%**\n- **Cumulative Net P&L:** **₹${totalNetPnL.toLocaleString('en-IN')}**\n\n**Coach Insights:**\n1. ${winRate >= 50 ? 'Your win rate is strong (>50%). Continue enforcing tight stop-loss limits to protect capital.' : 'Your win rate is below 50%. Focus on taking high-probability setups with at least 1:2 Risk-to-Reward ratio.'}\n2. **Risk Management:** Never risk more than 1-2% of total capital per trade.\n3. **Journal Discipline:** Keep logging every trade exit reason to identify recurring patterns.`;
+          aiContent = `### 📊 Performance & Win Rate Analysis for ${name}\n\n- **Total Trades Logged:** ${totalTrades}\n- **Current Win Rate:** **${winRate}%**\n- **Cumulative Net P&L:** **${currencySymbol}${totalNetPnL.toLocaleString('en-IN')}**\n\n**Coach Insights:**\n1. ${winRate >= 50 ? 'Your win rate is strong (>50%). Continue enforcing tight stop-loss limits to protect capital.' : 'Your win rate is below 50%. Focus on taking high-probability setups with at least 1:2 Risk-to-Reward ratio.'}\n2. **Risk Management:** Never risk more than 1-2% of total capital per trade.\n3. **Journal Discipline:** Keep logging every trade exit reason to identify recurring patterns.`;
         } else if (q.includes('revenge') || q.includes('emotion') || q.includes('discipline') || q.includes('psychology') || q.includes('rule')) {
           aiContent = `### 🧠 Psychological & Discipline Framework\n\n**3 Golden Rules to Master Trading Psychology:**\n\n1. **The 15-Minute Cooling Rule:** Never enter a new trade immediately after hitting a stop-loss. Take a 15-minute break away from charts.\n2. **Strict Daily Loss Quota:** If you hit your daily max loss limit, shut down your terminal for the rest of the session.\n3. **Trade Your Plan, Not FOMO:** Wait for clear candlestick setup confirmations. Do not chase green/red momentum candles.`;
         } else if (q.includes('banknifty') || q.includes('nifty') || q.includes('position') || q.includes('quantity') || q.includes('size')) {
@@ -161,7 +163,7 @@ Trader Context:
         } else if (q.includes('mistake') || q.includes('error') || q.includes('audit')) {
           aiContent = `### ⚠️ Top Trading Mistakes Audit\n\n1. **Chasing Entries (FOMO):** Entering trades late without a defined stop loss.\n2. **Averaging Down on Losing Positions:** Adding size to a losing trade multiplies drawdown risk.\n3. **Ignoring Risk:Reward Ratios:** Taking trades where potential risk exceeds potential profit.\n4. **Overtrading:** Executing multiple trades after daily targets or loss quotas have been reached.`;
         } else {
-          aiContent = `### 💡 AI Trading Coach Guidance\n\nHello **${name}**! Based on your live account data (**${totalTrades} trades logged**, **${winRate}% win rate**, Net P&L: **₹${totalNetPnL.toLocaleString('en-IN')}**):\n\n- **Execution Focus:** Consistency matters more than frequency. Quality setups over high quantity.\n- **Risk Rule:** Always calculate your stop loss before placing an order.\n- **Journaling:** Log your trade rationale in your daily notes to refine your edge!\n\nHow else can I help analyze your trading strategy today?`;
+          aiContent = `### 💡 AI Trading Coach Guidance\n\nHello **${name}**! Based on your live account data (**${totalTrades} trades logged**, **${winRate}% win rate**, Net P&L: **${currencySymbol}${totalNetPnL.toLocaleString('en-IN')}**):\n\n- **Execution Focus:** Consistency matters more than frequency. Quality setups over high quantity.\n- **Risk Rule:** Always calculate your stop loss before placing an order.\n- **Journaling:** Log your trade rationale in your daily notes to refine your edge!\n\nHow else can I help analyze your trading strategy today?`;
         }
       }
 
@@ -226,14 +228,14 @@ Trader Context:
     }
 
     const tradeListText = filtered.length > 0
-      ? filtered.map((t) => `- ${t.date}: ${t.indexOrStock} (${t.buyOrSell}) Entry: ₹${t.entryPrice}, Exit: ₹${t.exitPrice}, Qty: ${t.quantity}, Net P&L: ₹${t.netPnL}, Mode: ${t.tradeType || 'Manual'}`).join('\n')
+      ? filtered.map((t) => `- ${t.date}: ${t.indexOrStock} (${t.buyOrSell}) Entry: ${currencySymbol}${t.entryPrice}, Exit: ${currencySymbol}${t.exitPrice}, Qty: ${t.quantity}, Net P&L: ${currencySymbol}${t.netPnL}, Mode: ${t.tradeType || 'Manual'}`).join('\n')
       : 'No logged trades found for this period.';
 
     const promptText = `
 Generate a structured daily trading journal entry for an Options Trader based on these logged trades:
 ${tradeListText}
 
-Overall Account P&L: ₹${totalNetPnL}, Win Rate: ${winRate}%
+Overall Account P&L: ${currencySymbol}${totalNetPnL}, Win Rate: ${winRate}%
 
 Return JSON with this exact schema:
 {
@@ -264,9 +266,9 @@ Return JSON with this exact schema:
     if (totalFiltered === 0) {
       defaultSummary = `No trades were logged for the ${selectedTimeframe} timeframe. Market observation session maintained with patience and discipline.`;
     } else if (filteredPnl >= 0) {
-      defaultSummary = `Profitable trading session (${selectedTimeframe}) logging ₹${filteredPnl.toLocaleString('en-IN')} Net P&L across ${totalFiltered} trades with a ${filteredWinRate}% win rate. Execution was controlled and risk limits were respected.`;
+      defaultSummary = `Profitable trading session (${selectedTimeframe}) logging ${currencySymbol}${filteredPnl.toLocaleString('en-IN')} Net P&L across ${totalFiltered} trades with a ${filteredWinRate}% win rate. Execution was controlled and risk limits were respected.`;
     } else {
-      defaultSummary = `Session closed with a net loss of ₹${Math.abs(filteredPnl).toLocaleString('en-IN')} across ${totalFiltered} trades (${filteredWinRate}% win rate). Focused on capital protection and preventing drawdown escalation.`;
+      defaultSummary = `Session closed with a net loss of ${currencySymbol}${Math.abs(filteredPnl).toLocaleString('en-IN')} across ${totalFiltered} trades (${filteredWinRate}% win rate). Focused on capital protection and preventing drawdown escalation.`;
     }
 
     const defaultLessons = [
@@ -297,7 +299,7 @@ Return JSON with this exact schema:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [{ role: 'user', content: promptText }],
-          model: 'gemini-2.0-flash',
+          model: 'gemini-3.6-flash',
           systemInstruction: 'You are an AI Trading Journal Generator. Respond with structured text or valid JSON.',
         }),
       });

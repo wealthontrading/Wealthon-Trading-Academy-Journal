@@ -5,7 +5,7 @@ import {
   TrendingDown,
   Percent,
   BarChart2,
-  IndianRupee,
+  IndianRupee, DollarSign,
   Award,
   ChevronLeft,
   ChevronRight,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 import { Trade } from '../types';
+import { useMarket } from '../contexts/MarketContext';
 import { formatINR } from '../utils/calculations';
 
 interface MonthlyPerformanceProps {
@@ -26,6 +27,8 @@ interface MonthlyPerformanceProps {
 }
 
 export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }) => {
+  const { marketType } = useMarket();
+  const CurrencyIcon = marketType === 'Forex' ? DollarSign : IndianRupee;
   // Current month in YYYY-MM format
   const currentMonthKey = useMemo(() => {
     const now = new Date();
@@ -249,7 +252,7 @@ export const MonthlyPerformance: React.FC<MonthlyPerformanceProps> = ({ trades }
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center space-x-1.5">
-                <IndianRupee className="w-4 h-4 text-blue-600" />
+                <CurrencyIcon className="w-4 h-4 text-blue-600" />
                 <span>Monthly Net P&L</span>
               </span>
               <div

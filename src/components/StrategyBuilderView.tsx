@@ -1,3 +1,4 @@
+import { useMarket } from '../contexts/MarketContext';
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -42,6 +43,7 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
+import { formatINR } from '../utils/calculations';
 import { StrategyItem, Trade } from '../types';
 
 interface StrategyBuilderViewProps {
@@ -71,6 +73,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
   onDeleteStrategy,
   onOpenAddTradeWithStrategy,
 }) => {
+  const { currencySymbol } = useMarket();
   // Top View Mode: 'overview' | 'single' | 'compare'
   const [viewMode, setViewMode] = useState<'overview' | 'single' | 'compare'>('overview');
 
@@ -588,7 +591,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
             <span className="text-xs text-slate-400 font-medium block">Most Profitable</span>
             <div className="text-xl sm:text-2xl font-black text-blue-400 truncate">
               {headlineMetrics.mostProfitableStrat.pnl !== 0 ? (
-                <span>₹{headlineMetrics.mostProfitableStrat.pnl.toLocaleString('en-IN')}</span>
+                <span>{formatINR(headlineMetrics.mostProfitableStrat.pnl)}</span>
               ) : (
                 <span className="text-slate-400 text-base">₹0</span>
               )}
@@ -888,7 +891,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                                     data.netPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'
                                   }`}
                                 >
-                                  Net P&L: ₹{data.netPnL.toLocaleString('en-IN')}
+                                  Net P&L: {formatINR(data.netPnL)}
                                 </p>
                                 <p className="text-slate-300">Profit Factor: {data.profitFactor}</p>
                                 <p className="text-slate-400">Total Trades Logged: {data.trades}</p>
@@ -1137,7 +1140,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
 
                         <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-1">
                           <span className="text-[11px] text-slate-500 font-medium block">
-                            Net P&L (₹)
+                            Net P&L ({currencySymbol})
                           </span>
                           <span
                             className={`text-base font-black ${
@@ -1148,7 +1151,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                                 : 'text-slate-500'
                             }`}
                           >
-                            ₹{strat.stats.netPnL.toLocaleString('en-IN')}
+                            {formatINR(strat.stats.netPnL)}
                           </span>
                           <span className="text-[10px] text-slate-400 block">
                             {strat.stats.totalTrades} Trades Logged
@@ -1194,7 +1197,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                             </span>{' '}
                             /{' '}
                             <span className="text-rose-600">
-                              -₹{Math.round(strat.stats.avgLoss)}
+                              -{currencySymbol}{Math.round(strat.stats.avgLoss)}
                             </span>
                           </div>
                           <span className="text-[10px] text-slate-400 block">
@@ -1333,16 +1336,16 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                 {/* Key Stats Cards Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/80 space-y-1">
-                    <span className="text-xs text-slate-400 font-bold block">Net P&L (₹)</span>
+                    <span className="text-xs text-slate-400 font-bold block">Net P&L ({currencySymbol})</span>
                     <span
                       className={`text-xl font-black ${
                         singleStratAnalytics.strategy.stats.netPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'
                       }`}
                     >
-                      ₹{singleStratAnalytics.strategy.stats.netPnL.toLocaleString('en-IN')}
+                      {formatINR(singleStratAnalytics.strategy.stats.netPnL)}
                     </span>
                     <span className="text-[10px] text-slate-400 block">
-                      Gross: ₹{singleStratAnalytics.strategy.stats.grossPnL.toLocaleString('en-IN')}
+                      Gross: {formatINR(singleStratAnalytics.strategy.stats.grossPnL)}
                     </span>
                   </div>
 
@@ -1359,12 +1362,12 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                   <div className="bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/80 space-y-1">
                     <span className="text-xs text-slate-400 font-bold block">Avg Win / Loss</span>
                     <div className="text-sm font-black">
-                      <span className="text-emerald-400">+₹{Math.round(singleStratAnalytics.strategy.stats.avgWin)}</span>{' '}
+                      <span className="text-emerald-400">+{currencySymbol}{Math.round(singleStratAnalytics.strategy.stats.avgWin)}</span>{' '}
                       <span className="text-slate-500">/</span>{' '}
                       <span className="text-rose-400">-₹{Math.round(singleStratAnalytics.strategy.stats.avgLoss)}</span>
                     </div>
                     <span className="text-[10px] text-slate-400 block">
-                      Best: +₹{singleStratAnalytics.strategy.stats.bestTrade.toLocaleString('en-IN')}
+                      Best: +{formatINR(singleStratAnalytics.strategy.stats.bestTrade)}
                     </span>
                   </div>
 
@@ -1440,10 +1443,10 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                                     <p className="font-bold text-slate-200">Trade #{data.tradeIndex} • {data.date}</p>
                                     <p className="text-slate-300">Symbol: {data.symbol}</p>
                                     <p className={`font-bold ${data.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                      Trade P&L: ₹{data.pnl.toLocaleString('en-IN')}
+                                      Trade P&L: {formatINR(data.pnl)}
                                     </p>
                                     <p className="font-black text-indigo-300 pt-1 border-t border-slate-800">
-                                      Cumulative P&L: ₹{data.cumulativePnL.toLocaleString('en-IN')}
+                                      Cumulative P&L: {formatINR(data.cumulativePnL)}
                                     </p>
                                   </div>
                                 );
@@ -1474,7 +1477,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                   <div>
                     <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2">
                       <BarChart2 className="w-4 h-4 text-indigo-600" />
-                      <span>Individual Trade Performance (₹)</span>
+                      <span>Individual Trade Performance ({currencySymbol})</span>
                     </h3>
                     <p className="text-xs text-slate-500">Profit & loss generated trade-by-trade</p>
                   </div>
@@ -1497,7 +1500,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                                   <div className="bg-slate-900 text-white text-xs p-3 rounded-xl shadow-lg border border-slate-700">
                                     <p className="font-bold text-slate-200">Trade #{data.tradeIndex} ({data.date})</p>
                                     <p className={`font-black ${data.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                      P&L: ₹{data.pnl.toLocaleString('en-IN')}
+                                      P&L: {formatINR(data.pnl)}
                                     </p>
                                   </div>
                                 );
@@ -1548,7 +1551,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                           <th className="py-3 px-3">Segment</th>
                           <th className="py-3 px-3">Side</th>
                           <th className="py-3 px-3">Strike / Price</th>
-                          <th className="py-3 px-3 text-right">Net P&L (₹)</th>
+                          <th className="py-3 px-3 text-right">Net P&L ({currencySymbol})</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 font-medium">
@@ -1578,7 +1581,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                                 t.netPnL >= 0 ? 'text-emerald-600' : 'text-rose-600'
                               }`}
                             >
-                              ₹{t.netPnL.toLocaleString('en-IN')}
+                              {formatINR(t.netPnL)}
                             </td>
                           </tr>
                         ))}
@@ -1697,7 +1700,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                   <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/80">
                     <span className="text-slate-400 font-bold block">Net P&L</span>
                     <span className={`text-xl font-black ${compareData.stratA.stats.netPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      ₹{compareData.stratA.stats.netPnL.toLocaleString('en-IN')}
+                      {formatINR(compareData.stratA.stats.netPnL)}
                     </span>
                     <span className="text-[10px] text-slate-400 block">{compareData.stratA.stats.totalTrades} Trades Logged</span>
                   </div>
@@ -1721,7 +1724,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                   <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/80">
                     <span className="text-slate-400 font-bold block">Avg Win / Avg Loss</span>
                     <span className="text-xs font-bold text-slate-200">
-                      +₹{Math.round(compareData.stratA.stats.avgWin)} / -₹{Math.round(compareData.stratA.stats.avgLoss)}
+                      +₹{Math.round(compareData.stratA.stats.avgWin)} / -{currencySymbol}{Math.round(compareData.stratA.stats.avgLoss)}
                     </span>
                   </div>
 
@@ -1764,7 +1767,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                   <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/80">
                     <span className="text-slate-400 font-bold block">Net P&L</span>
                     <span className={`text-xl font-black ${compareData.stratB.stats.netPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                      ₹{compareData.stratB.stats.netPnL.toLocaleString('en-IN')}
+                      {formatINR(compareData.stratB.stats.netPnL)}
                     </span>
                     <span className="text-[10px] text-slate-400 block">{compareData.stratB.stats.totalTrades} Trades Logged</span>
                   </div>
@@ -1788,7 +1791,7 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                   <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700/80">
                     <span className="text-slate-400 font-bold block">Avg Win / Avg Loss</span>
                     <span className="text-xs font-bold text-slate-200">
-                      +₹{Math.round(compareData.stratB.stats.avgWin)} / -₹{Math.round(compareData.stratB.stats.avgLoss)}
+                      +₹{Math.round(compareData.stratB.stats.avgWin)} / -{currencySymbol}{Math.round(compareData.stratB.stats.avgLoss)}
                     </span>
                   </div>
 
@@ -1830,11 +1833,11 @@ export const StrategyBuilderView: React.FC<StrategyBuilderViewProps> = ({
                             <p className="font-bold text-slate-200 border-b border-slate-800 pb-1">Trade Sequence #{data.tradeIndex}</p>
                             <div className="flex items-center justify-between gap-4">
                               <span className="text-indigo-300 font-bold">{compareData.stratA.name}:</span>
-                              <span className="text-indigo-400 font-mono font-black">₹{data.cumA.toLocaleString('en-IN')}</span>
+                              <span className="text-indigo-400 font-mono font-black">{formatINR(data.cumA)}</span>
                             </div>
                             <div className="flex items-center justify-between gap-4">
                               <span className="text-emerald-300 font-bold">{compareData.stratB.name}:</span>
-                              <span className="text-emerald-400 font-mono font-black">₹{data.cumB.toLocaleString('en-IN')}</span>
+                              <span className="text-emerald-400 font-mono font-black">{formatINR(data.cumB)}</span>
                             </div>
                           </div>
                         );
