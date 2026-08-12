@@ -199,7 +199,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     adminUpdateStudentStatus(email, 'approved', undefined, true);
     setBannerMsg({
       type: 'success',
-      text: `Renewed account plan for ${email} for 1 year!`,
+      text: `Renewed account plan for ${email}!`,
     });
     refreshStudents();
   };
@@ -434,6 +434,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             >
               <Sparkles className="w-4 h-4" />
               <span>Ideas & Improvements</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveAdminPage('enquiries')}
+              className={`px-3.5 py-2 font-bold rounded-xl transition cursor-pointer flex items-center space-x-1.5 ${
+                activeAdminPage === 'enquiries'
+                  ? 'bg-emerald-600 text-white font-black shadow-xs'
+                  : 'bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100'
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>Enquiries</span>
             </button>
 
             <button
@@ -978,11 +991,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                     <span>{new Date(s.approvedAt || s.registeredAt).toLocaleString()}</span>
                                   </div>
                                   {s.expiryDate && (
-                                    <div className="flex items-center justify-between gap-2">
-                                      <span className="font-semibold">Expiry:</span>
-                                      <span className={Date.now() > s.expiryDate ? 'text-rose-600 font-bold' : ''}>
-                                        {new Date(s.expiryDate).toLocaleString()}
-                                      </span>
+                                    <div className="flex flex-col gap-1 mt-1 border-t border-slate-100 pt-1">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <span className="font-semibold text-slate-500 text-[10px]">Expiry:</span>
+                                        <span className={Date.now() > s.expiryDate ? 'text-rose-600 font-bold text-[10px]' : 'text-slate-700 text-[10px]'}>
+                                          {new Date(s.expiryDate).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                      {(() => {
+                                        const daysLeft = Math.ceil((s.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
+                                        if (daysLeft <= 0) {
+                                          return <span className="text-[10px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded font-bold w-fit">Expired</span>;
+                                        }
+                                        if (daysLeft <= 3) {
+                                          return <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold w-fit animate-pulse">Expiring in {daysLeft} days</span>;
+                                        }
+                                        return <span className="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded font-medium w-fit">{daysLeft} days left</span>;
+                                      })()}
                                     </div>
                                   )}
                                 </div>
@@ -1108,7 +1133,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                                 <button
                                   onClick={() => handleRenew(s.email)}
                                   className="px-2 py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition cursor-pointer text-xs font-semibold"
-                                  title="Renew plan for 1 year"
+                                  title="Renew plan"
                                 >
                                   Renew Plan
                                 </button>
@@ -1182,6 +1207,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         {/* SECTION 2.5: IDEAS & IMPROVEMENTS */}
         {activeAdminPage === 'ideas' && (
           <AdminFeedbackAnalytics defaultTypeFilter="Idea" />
+        )}
+
+        {/* SECTION 2.6: ENQUIRIES */}
+        {(activeAdminPage === 'all' || activeAdminPage === 'enquiries') && (
+          <AdminFeedbackAnalytics defaultTypeFilter="Enquiry" />
         )}
 
         {/* SECTION 3: BROKER DEMAND ANALYTICS & MARKET SURVEY */}

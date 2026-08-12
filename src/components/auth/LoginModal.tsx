@@ -12,6 +12,7 @@ import {
   Lock,
   Key,
   User,
+  MessageSquare,
 } from 'lucide-react';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleAuthProvider } from '../../lib/firebase';
@@ -23,13 +24,14 @@ import {
   registerStudentRequest,
 } from '../../utils/studentStorage';
 import { subscribeStudentsFromFirestore } from '../../utils/firebaseSync';
+import { EnquiryView } from '../EnquiryView';
 
 interface LoginModalProps {
   onLoginSuccess: (session: UserSession) => void;
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
-  const [activeTab, setActiveTab] = useState<'student' | 'signup' | 'admin'>('student');
+  const [activeTab, setActiveTab] = useState<'student' | 'signup' | 'admin' | 'enquiry'>('signup');
 
   // Student Login State
   const [studentEmail, setStudentEmail] = useState('');
@@ -278,6 +280,21 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
               <span>Admin Portal</span>
             </button>
           </div>
+          <div className="mt-2 flex justify-center">
+            <button
+              onClick={() => {
+                setActiveTab('enquiry');
+                setErrorMsg('');
+                setSuccessMsg('');
+              }}
+              className={`py-1.5 px-4 text-xs font-bold rounded-xl transition cursor-pointer flex items-center space-x-1.5 ${
+                activeTab === 'enquiry' ? 'bg-amber-500 text-white shadow-md' : 'bg-transparent text-blue-200 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Submit Enquiry</span>
+            </button>
+          </div>
         </div>
 
         {/* Content Body */}
@@ -520,6 +537,17 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                 </button>
               </div>
             </form>
+          )}
+
+          {/* ENQUIRY TAB */}
+          {activeTab === 'enquiry' && (
+            <div className="space-y-4">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 font-medium flex items-center space-x-2">
+                <MessageSquare className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Send us your questions or enquiries</span>
+              </div>
+              <EnquiryView />
+            </div>
           )}
         </div>
 

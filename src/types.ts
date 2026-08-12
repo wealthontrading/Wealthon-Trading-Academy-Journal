@@ -185,7 +185,7 @@ export interface BrokerRequest {
 
 export interface FeedbackItem {
   id: string;
-  type: 'Feedback' | 'Complaint' | 'Idea';
+  type: 'Feedback' | 'Complaint' | 'Idea' | 'Enquiry';
   ticketNumber?: string;
   userEmail: string;
   userName?: string;

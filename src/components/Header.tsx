@@ -17,6 +17,8 @@ interface HeaderProps {
   userSession?: UserSession | null;
   onLogout?: () => void;
   onOpenAdminPortal?: () => void;
+  isExpiringSoon?: boolean;
+  sessionExpiryDate?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -32,6 +34,8 @@ export const Header: React.FC<HeaderProps> = ({
   userSession,
   onLogout,
   onOpenAdminPortal,
+  isExpiringSoon,
+  sessionExpiryDate,
 }) => {
   const [timeStr, setTimeStr] = useState('');
   const [dateStr, setDateStr] = useState('');
@@ -39,6 +43,24 @@ export const Header: React.FC<HeaderProps> = ({
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
+      
+      if (isExpiringSoon && sessionExpiryDate) {
+        const diff = sessionExpiryDate - now.getTime();
+        if (diff <= 0) {
+          setTimeStr('00:00:00');
+          setDateStr('ACCESS EXPIRED');
+        } else {
+          // Format as DD:HH:MM:SS
+          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+          const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+          const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+          setTimeStr(`${d}d ${h}h ${m}m ${s}s`);
+          setDateStr('PLAN EXPIRING IN');
+        }
+        return;
+      }
+      
       // 12-hour format with seconds (e.g., 09:45:23 PM)
       const hours = now.getHours();
       const minutes = now.getMinutes().toString().padStart(2, '0');

@@ -22,7 +22,7 @@ export const RenewalPage: React.FC<RenewalPageProps> = ({ session, onLogout }) =
         </div>
         <h1 className="text-2xl font-extrabold text-slate-900 mb-2">Account Expired</h1>
         <p className="text-slate-600 mb-6 text-sm">
-          Hi {session.name}, your 1-year Limited Plan has expired. 
+          Hi {session.name}, your Limited Plan has expired. 
           To continue accessing your trading journal, old data, and profile, please renew your subscription.
         </p>
 

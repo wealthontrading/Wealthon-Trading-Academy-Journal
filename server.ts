@@ -43,15 +43,25 @@ app.post('/api/chat', async (req, res) => {
       return;
     }
 
+    let validMessages = messages;
+    if (validMessages.length > 0 && validMessages[0].role === 'model') {
+      validMessages = validMessages.slice(1);
+    }
+    
+    if (validMessages.length === 0) {
+      res.json({ text: 'How can I help you today?' });
+      return;
+    }
+
     const requestedModel = model || 'gemini-2.0-flash';
 
     // Map conversation history to contents format
-    const contents = messages.map((m: { role: string; content: string }) => ({
+    const contents = validMessages.map((m: { role: string; content: string }) => ({
       role: m.role === 'user' ? 'user' : 'model',
       parts: [{ text: m.content }],
     }));
 
-    const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
+    const lastUserMessage = [...validMessages].reverse().find((m) => m.role === 'user')?.content || '';
 
     let aiText = '';
     let success = false;

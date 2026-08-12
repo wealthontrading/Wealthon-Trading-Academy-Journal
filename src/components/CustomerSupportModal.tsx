@@ -22,13 +22,14 @@ import ReactMarkdown from 'react-markdown';
 import { Logo } from './Logo';
 import { FeedbackItem, TraderProfile, UserSession } from '../types';
 import { FeedbackView } from './FeedbackView';
+import { EnquiryView } from './EnquiryView';
 
 interface CustomerSupportModalProps {
   isOpen: boolean;
   onClose: () => void;
   profile?: TraderProfile;
   userSession?: UserSession | null;
-  initialTab?: 'support' | 'renew' | 'feedback' | 'idea';
+  initialTab?: 'support' | 'renew' | 'feedback' | 'idea' | 'enquiry';
 }
 
 export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
@@ -38,7 +39,7 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
   userSession,
   initialTab = 'support'
 }) => {
-  const [activeTab, setActiveTab] = useState<'support' | 'renew' | 'feedback' | 'idea'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'support' | 'renew' | 'feedback' | 'idea' | 'enquiry'>(initialTab);
 
   // Chat Support State
   const [showWhatsApp, setShowWhatsApp] = useState(false);
@@ -208,6 +209,18 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
             >
               <MessageSquare className="w-4 h-4" />
               <span>Feedback & Complaints</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('enquiry')}
+              className={`pb-3 px-4 text-xs font-bold transition border-b-2 flex items-center space-x-1.5 cursor-pointer ${
+                activeTab === 'enquiry'
+                  ? 'border-indigo-600 text-indigo-700 font-extrabold'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Mail className="w-4 h-4" />
+              <span>General Enquiry</span>
             </button>
           </div>
 
@@ -402,6 +415,12 @@ export const CustomerSupportModal: React.FC<CustomerSupportModalProps> = ({
 
             {activeTab === 'idea' && (
               <FeedbackView profile={profile} userSession={userSession} defaultTab="Idea" />
+            )}
+
+            {activeTab === 'enquiry' && (
+              <div className="p-4">
+                <EnquiryView />
+              </div>
             )}
 
           </div>

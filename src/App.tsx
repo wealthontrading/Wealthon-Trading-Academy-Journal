@@ -63,6 +63,7 @@ import { Footer } from './components/Footer';
 import { LoginModal } from './components/auth/LoginModal';
 import { AdminPortal } from './components/AdminPortal';
 import { JournalSavedModal } from './components/JournalSavedModal';
+import { ExpiryReminderModal } from './components/ExpiryReminderModal';
 import { GoalToastNotification, ToastMessage, getRandomReinforcementQuote } from './components/GoalToastNotification';
 import { ExecutionModePerformanceTable } from './components/ExecutionModePerformanceTable';
 import { MonthlyPerformance } from './components/MonthlyPerformance';
@@ -207,6 +208,17 @@ export default function App() {
   const [isCustomerSupportOpen, setIsCustomerSupportOpen] = useState(false);
   const [isSendToMentorOpen, setIsSendToMentorOpen] = useState(false);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [dismissExpiryPopup, setDismissExpiryPopup] = useState(false);
+
+  // Expiry calculation
+  const sessionDaysLeft = useMemo(() => {
+    if (session?.role === 'student' && session.expiryDate) {
+      return Math.ceil((session.expiryDate - Date.now()) / (1000 * 60 * 60 * 24));
+    }
+    return null;
+  }, [session]);
+  
+  const isExpiringSoon = sessionDaysLeft !== null && sessionDaysLeft <= 3 && sessionDaysLeft > 0;
 
   const [initialStrategyForAddTrade, setInitialStrategyForAddTrade] = useState<string>('');
 
@@ -550,6 +562,19 @@ export default function App() {
     );
   }
 
+  // Setup a timer to force re-render when expiry hits
+  useEffect(() => {
+    if (session?.role === 'student' && session.expiryDate) {
+      const timeToExpiry = session.expiryDate - Date.now();
+      if (timeToExpiry > 0) {
+        const timeout = setTimeout(() => {
+          setSession({ ...session }); // Force re-render
+        }, timeToExpiry);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [session]);
+
   // 1. If not logged in, render LoginModal
   if (!session) {
     return (
@@ -674,6 +699,8 @@ export default function App() {
         }}
         onLogout={handleLogout}
         onOpenAdminPortal={session.role === 'admin' ? () => setViewMode('admin') : undefined}
+        isExpiringSoon={isExpiringSoon}
+        sessionExpiryDate={session.expiryDate}
       />
 
       {/* Main Container */}
@@ -824,6 +851,13 @@ export default function App() {
       </main>
 
       {/* Modals */}
+      <ExpiryReminderModal
+        isOpen={isExpiringSoon && !dismissExpiryPopup}
+        onClose={() => setDismissExpiryPopup(true)}
+        session={session}
+        daysLeft={sessionDaysLeft || 0}
+      />
+
       <TradeFormModal
         isOpen={isAddTradeOpen}
         onClose={() => {
