@@ -185,9 +185,17 @@ export default function App() {
       if (Array.isArray(studentsList) && session && session.role === 'student') {
         const currentEmail = session.email.trim().toLowerCase();
         const match = studentsList.find((s) => s.email.trim().toLowerCase() === currentEmail);
-        if (match && (match.status === 'rejected' || match.status === 'disabled')) {
-          alert(`Your account access (${session.email}) has been modified or removed by the administrator.`);
-          handleLogout();
+        
+        if (match) {
+          if (match.status === 'rejected' || match.status === 'disabled') {
+            alert(`Your account access (${session.email}) has been modified or removed by the administrator.`);
+            handleLogout();
+          } else if (match.expiryDate && match.expiryDate !== session.expiryDate) {
+            // Live update the session's expiry date if admin changed it
+            const updatedSession = { ...session, expiryDate: match.expiryDate };
+            setSession(updatedSession);
+            saveStoredSession(updatedSession);
+          }
         }
       }
     });
@@ -566,11 +574,36 @@ export default function App() {
   useEffect(() => {
     if (session?.role === 'student' && session.expiryDate) {
       const timeToExpiry = session.expiryDate - Date.now();
+      
       if (timeToExpiry > 0) {
-        const timeout = setTimeout(() => {
-          setSession({ ...session }); // Force re-render
-        }, timeToExpiry);
-        return () => clearTimeout(timeout);
+        const checkExpiry = () => {
+          if (session.expiryDate && Date.now() > session.expiryDate) {
+            setSession({ ...session }); // Force re-render
+          }
+        };
+
+        const timeout = setTimeout(checkExpiry, timeToExpiry);
+        
+        // Mobile fallback: check every 2 seconds
+        const interval = setInterval(() => {
+          if (session.expiryDate && Date.now() > session.expiryDate) {
+            checkExpiry();
+          }
+        }, 2000);
+
+        // Mobile fallback: check immediately when returning to the app
+        const handleVisibilityChange = () => {
+          if (document.visibilityState === 'visible') {
+            checkExpiry();
+          }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+          clearTimeout(timeout);
+          clearInterval(interval);
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
       }
     }
   }, [session]);

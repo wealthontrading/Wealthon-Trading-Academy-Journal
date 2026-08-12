@@ -78,8 +78,19 @@ export const Header: React.FC<HeaderProps> = ({
 
     updateTime();
     const timer = setInterval(updateTime, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        updateTime();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isExpiringSoon, sessionExpiryDate]);
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
