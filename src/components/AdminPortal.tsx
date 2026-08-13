@@ -1,3 +1,5 @@
+import { sendEmailViaGmail } from "../lib/gmail";
+import { getAccessToken, googleSignIn } from "../lib/firebase";
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Logo } from './Logo';
@@ -27,6 +29,7 @@ import {
   Radio,
   Star,
   MessageSquare,
+  Mail,
 } from 'lucide-react';
 import { StudentAccount, SystemMaintenanceState, Trade, UserSession } from '../types';
 import { AdminBrokerAnalytics } from './AdminBrokerAnalytics';
@@ -61,7 +64,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onSeedSampleTrades,
 }) => {
   const [activeGuideTab, setActiveGuideTab] = useState<'addTrade' | 'calculator' | 'analytics' | 'journal' | 'mentor'>('addTrade');
-  const [activeAdminPage, setActiveAdminPage] = useState<'all' | 'students' | 'feedback' | 'ideas' | 'broker' | 'maintenance' | 'manual'>('all');
+  const [activeAdminPage, setActiveAdminPage] = useState<'all' | 'students' | 'feedback' | 'ideas' | 'broker' | 'maintenance' | 'manual' | 'enquiries'>('all');
 
   // Live Students State
   const [students, setStudents] = useState<StudentAccount[]>(() => getStoredStudents());
@@ -202,6 +205,61 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       text: `Renewed account plan for ${email}!`,
     });
     refreshStudents();
+  };
+
+
+// Add this state variable to AdminPortal component
+// const [isSendingEmail, setIsSendingEmail] = useState<string | null>(null);
+
+  const handleSendApprovalEmail = async (student: StudentAccount) => {
+    const subject = "Your WealthOn Trading Journal account has been successfully activated!";
+    const expiryStr = student.expiryDate ? new Date(student.expiryDate).toLocaleString() : '1 Month from activation';
+    const bodyText = `Dear ${student.name || 'Student'},
+
+🎉 Your WealthOn Trading Journal account has been successfully activated!
+
+Thank you for choosing WealthOn Trading Academy. Your account approval and activation are now complete.
+
+🔐 Login Details
+
+Login ID: ${student.email}
+Password: The password you created during registration
+Account Expiry: ${expiryStr}
+
+Please use the same password you entered when registering your account.
+
+You can now access the WealthOn Trading Journal and start tracking your trades, P&L, and trading performance.
+
+📊 Your 1-Month Access Includes:
+
+Trade & P&L Tracking, Trading Performance Analytics, Strategy Analysis & Comparison, Monthly & Yearly Performance Reports, Trading Calendar & Heatmaps, AI Trading Coach & Journal Tools, and Trade History & Performance Insights.
+
+Trade → Track → Analyze → Learn → Improve
+
+Thank you for being a part of WealthOn Trading Academy.
+
+🚀 Welcome to the next level of your trading journey!
+
+Best Regards,
+WealthOn Trading Academy
+Journal Today, Profit Tomorrow`;
+
+    try {
+      let token = await getAccessToken();
+      if (!token) {
+        setBannerMsg({ type: 'success', text: 'Please sign in with Google to enable Gmail sending...' });
+        const result = await googleSignIn();
+        if (!result) return;
+        token = result.accessToken;
+      }
+      
+      await sendEmailViaGmail(student.email, subject, bodyText);
+      setBannerMsg({ type: 'success', text: `✅ Approval email sent successfully to ${student.email}!` });
+      window.alert(`✅ Approval email sent successfully to ${student.email}!`);
+    } catch (err: any) {
+      setBannerMsg({ type: 'error', text: `Failed to send email: ${err.message}` });
+      window.alert(`❌ Failed to send email: ${err.message}`);
+    }
   };
 
   const handleApproveStatus = (email: string, status: 'approved' | 'disabled' | 'rejected') => {
@@ -1120,13 +1178,23 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               )}
 
                               {s.status === 'approved' && (
-                                <button
-                                  onClick={() => handleApproveStatus(s.email, 'disabled')}
-                                  className="px-2 py-1 text-slate-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition cursor-pointer text-xs font-semibold"
-                                  title="Disable account"
-                                >
-                                  Disable
-                                </button>
+                                <>
+                                  <button
+                                    onClick={() => handleSendApprovalEmail(s)}
+                                    className="px-2.5 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold text-xs rounded-lg transition cursor-pointer flex items-center space-x-1"
+                                    title="Send approval email to student"
+                                  >
+                                    <Mail className="w-3.5 h-3.5" />
+                                    <span>Send Email</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleApproveStatus(s.email, 'disabled')}
+                                    className="px-2 py-1 text-slate-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition cursor-pointer text-xs font-semibold"
+                                    title="Disable account"
+                                  >
+                                    Disable
+                                  </button>
+                                </>
                               )}
 
                               {s.status === 'approved' && s.expiryDate && Date.now() > s.expiryDate && (
