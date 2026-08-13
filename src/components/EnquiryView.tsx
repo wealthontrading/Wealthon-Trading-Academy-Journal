@@ -34,16 +34,13 @@ export const EnquiryView: React.FC = () => {
         console.error("Failed to submit enquiry:", err);
       }
       
-      const waText = encodeURIComponent(`New Enquiry:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`);
-      window.open(`https://wa.me/918547742160?text=${waText}`, '_blank');
-      
       setTimeout(() => {
         setName('');
         setEmail('');
         setPhone('');
         setMessage('');
         setSubmitted(false);
-      }, 3000);
+      }, 5000);
     }
   };
 
@@ -55,7 +52,7 @@ export const EnquiryView: React.FC = () => {
         </div>
         <h3 className="text-xl font-bold text-slate-900">Enquiry Sent!</h3>
         <p className="text-sm text-slate-600">
-          Thank you for reaching out. Our team will get back to you shortly. You have also been redirected to our WhatsApp support.
+          Thank you for reaching out. Our team will get back to you shortly.
         </p>
       </div>
     );

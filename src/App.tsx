@@ -750,7 +750,7 @@ export default function App() {
             {activeTab === 'dashboard' && (
               <div className="space-y-6">
                 <DailyQuoteCard />
-                <DashboardStats metrics={metrics} />
+                <DashboardStats metrics={metrics} goals={goals} trades={trades} />
 
                 {/* AI Assistant Quick Banner */}
                 <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 sm:p-6 border border-indigo-900/80 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden group">

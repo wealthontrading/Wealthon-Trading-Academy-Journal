@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import {
   TrendingUp,
@@ -15,15 +15,52 @@ import {
   BarChart,
   Percent,
   Wallet,
+  Target,
+  CheckCircle2
 } from 'lucide-react';
-import { DashboardMetrics } from '../types';
+import { DashboardMetrics, TradingGoal, Trade } from '../types';
 import { formatINR } from '../utils/calculations';
 
 interface DashboardStatsProps {
   metrics: DashboardMetrics;
+  goals?: TradingGoal[];
+  trades?: Trade[];
 }
 
-export const DashboardStats: React.FC<DashboardStatsProps> = ({ metrics }) => {
+export const DashboardStats: React.FC<DashboardStatsProps> = ({ metrics, goals = [], trades = [] }) => {
+  const monthlyGoalsToDisplay = useMemo(() => {
+    const monthlyGoals = goals.filter(g => g.period === 'Monthly');
+    
+    if (monthlyGoals.length === 0) return [];
+    
+    const now = new Date();
+    const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const currentMonthTrades = trades.filter(t => t.date.startsWith(currentMonthStr));
+    
+    const currentMonthNetPnL = currentMonthTrades.reduce((sum, t) => sum + (t.netPnL || 0), 0);
+    const currentMonthTradeCount = currentMonthTrades.length;
+    const winningTradesCount = currentMonthTrades.filter(t => (t.netPnL || 0) > 0).length;
+    const currentMonthWinRate = currentMonthTradeCount > 0 ? (winningTradesCount / currentMonthTradeCount) * 100 : 0;
+    
+    return monthlyGoals.map(goal => {
+      let computedValue = goal.currentValue || 0;
+      
+      // Auto-calculate for known categories based on current month's trades
+      if (goal.category === 'Profit' || goal.unit === '₹') {
+        computedValue = currentMonthNetPnL;
+      } else if (goal.category === 'Win Rate' || goal.unit === '%') {
+        computedValue = currentMonthWinRate;
+      } else if (goal.category === 'Consistency' || goal.unit === 'Trades') {
+        computedValue = currentMonthTradeCount;
+      }
+      
+      // Don't let negative profit go below 0 for progress bar logic
+      if (computedValue < 0 && goal.targetValue > 0) computedValue = 0;
+      
+      return { ...goal, computedValue };
+    });
+  }, [goals, trades]);
+
   const cards = [
     {
       title: 'Net P&L',
@@ -220,6 +257,89 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({ metrics }) => {
           );
         })}
       </div>
+
+      {/* Monthly Goals Progress Section */}
+      {monthlyGoalsToDisplay.length > 0 && (
+        <div className="mt-8 pt-8 border-t border-slate-200">
+          <div className="flex items-center space-x-2 mb-6">
+            <Target className="w-5 h-5 text-indigo-600" />
+            <h3 className="text-lg font-bold text-slate-900">Monthly Goals Progress</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {monthlyGoalsToDisplay.map((goal, idx) => {
+              const isLimit = goal.title.toLowerCase().includes('limit') || goal.title.toLowerCase().includes('max');
+              const progressPercentage = Math.min(Math.max((goal.computedValue / goal.targetValue) * 100, 0), 100);
+              const isAchieved = isLimit ? goal.computedValue <= goal.targetValue : goal.computedValue >= goal.targetValue;
+              const isBreached = isLimit && goal.computedValue > goal.targetValue;
+              
+              let progressColor = 'bg-blue-500';
+              if (isBreached) {
+                progressColor = 'bg-rose-500';
+              } else if (!isLimit && isAchieved) {
+                progressColor = 'bg-emerald-500';
+              } else if (isLimit) {
+                if (progressPercentage > 90) progressColor = 'bg-rose-400';
+                else if (progressPercentage > 75) progressColor = 'bg-amber-400';
+                else progressColor = 'bg-emerald-400';
+              } else {
+                if (progressPercentage > 75) progressColor = 'bg-indigo-500';
+                else if (progressPercentage > 40) progressColor = 'bg-blue-400';
+                else progressColor = 'bg-slate-400';
+              }
+
+              return (
+                <motion.div
+                  key={goal.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-800">{goal.title}</h4>
+                      <p className="text-xs text-slate-500">{goal.category}</p>
+                    </div>
+                    {isBreached ? (
+                      <span className="flex items-center space-x-1 text-xs font-bold text-rose-700 bg-rose-50 px-2 py-1 rounded-md">
+                        <span>Limit Breached</span>
+                      </span>
+                    ) : (!isLimit && isAchieved) ? (
+                      <span className="flex items-center space-x-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Achieved</span>
+                      </span>
+                    ) : (
+                      <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md">
+                        {progressPercentage.toFixed(0)}%
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mt-3 mb-2">
+                    <motion.div 
+                      className={`h-full ${progressColor} rounded-full`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPercentage}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 + (idx * 0.05) }}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-xs font-medium">
+                    <span className="text-slate-600">
+                      {isLimit ? 'Current: ' : ''}{goal.unit === '₹' ? formatINR(goal.computedValue) : `${goal.computedValue.toLocaleString()} ${goal.unit !== '%' ? goal.unit : ''}${goal.unit === '%' ? '%' : ''}`}
+                    </span>
+                    <span className="text-slate-400">
+                      {isLimit ? 'Limit: ' : 'Target: '}{goal.unit === '₹' ? formatINR(goal.targetValue) : `${goal.targetValue.toLocaleString()} ${goal.unit !== '%' ? goal.unit : ''}${goal.unit === '%' ? '%' : ''}`}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
